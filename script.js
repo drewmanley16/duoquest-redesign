@@ -1,5 +1,6 @@
 const toast = document.querySelector("#toast")
 const soundToggle = document.querySelector("#soundToggle")
+const soundLabel = soundToggle?.querySelector(".sound-label")
 let soundEnabled = true
 
 const showToast = (message) => {
@@ -9,21 +10,26 @@ const showToast = (message) => {
   showToast.timeout = window.setTimeout(() => toast.classList.remove("show"), 2600)
 }
 
-const beep = () => {
+const beep = (freq = 520, type = "square") => {
   if (!soundEnabled) return
   const AudioContext = window.AudioContext || window.webkitAudioContext
   if (!AudioContext) return
   const ctx = new AudioContext()
   const oscillator = ctx.createOscillator()
   const gain = ctx.createGain()
-  oscillator.type = "square"
-  oscillator.frequency.setValueAtTime(520, ctx.currentTime)
-  oscillator.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.12)
-  gain.gain.setValueAtTime(0.04, ctx.currentTime)
-  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12)
+  oscillator.type = type
+  oscillator.frequency.setValueAtTime(freq, ctx.currentTime)
+  oscillator.frequency.exponentialRampToValueAtTime(freq * 0.5, ctx.currentTime + 0.1)
+  gain.gain.setValueAtTime(0.06, ctx.currentTime)
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1)
   oscillator.connect(gain).connect(ctx.destination)
   oscillator.start()
-  oscillator.stop(ctx.currentTime + 0.13)
+  oscillator.stop(ctx.currentTime + 0.12)
+}
+
+const confirmBeep = () => {
+  beep(660, "square")
+  setTimeout(() => beep(880, "square"), 80)
 }
 
 const speakWithElevenLabs = async (text) => {
@@ -39,7 +45,7 @@ const speakWithElevenLabs = async (text) => {
 }
 
 const speak = async (text) => {
-  beep()
+  confirmBeep()
   showToast(text)
   if (!soundEnabled) return
   try {
@@ -52,21 +58,44 @@ const speak = async (text) => {
   window.speechSynthesis.cancel()
   const utterance = new SpeechSynthesisUtterance(text)
   utterance.rate = 1.02
-  utterance.pitch = 1.18
+  utterance.pitch = 1.1
   window.speechSynthesis.speak(utterance)
 }
 
+// All clickable elements with data-speak
 document.querySelectorAll("[data-speak]").forEach((button) => {
   button.addEventListener("click", () => speak(button.dataset.speak))
 })
 
-soundToggle.addEventListener("click", () => {
+// Sound toggle
+soundToggle?.addEventListener("click", () => {
   soundEnabled = !soundEnabled
   if (!soundEnabled && "speechSynthesis" in window) {
     window.speechSynthesis.cancel()
   }
   soundToggle.setAttribute("aria-pressed", String(soundEnabled))
-  showToast(soundEnabled ? "Interface audio on" : "Interface audio off")
+  if (soundLabel) {
+    soundLabel.textContent = soundEnabled ? "SFX ON" : "SFX OFF"
+  }
+  showToast(soundEnabled ? "Interface audio enabled" : "Interface audio disabled")
+  if (soundEnabled) beep(440)
 })
 
-showToast("Prototype ready: click quest nodes or voice guides.")
+// Add hover sounds to arcade buttons
+document.querySelectorAll(".arcade-btn, .guide-btn, .node:not(.locked)").forEach((btn) => {
+  btn.addEventListener("mouseenter", () => beep(330, "sine"))
+})
+
+// Animate XP bar on load
+const xpBar = document.querySelector(".xp-bar-fill")
+if (xpBar) {
+  xpBar.style.setProperty("--fill", "0%")
+  setTimeout(() => {
+    xpBar.style.setProperty("--fill", "68%")
+  }, 500)
+}
+
+// Initial toast
+setTimeout(() => {
+  showToast("READY PLAYER ONE — Select a quest node")
+}, 800)
