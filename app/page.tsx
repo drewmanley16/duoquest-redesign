@@ -59,7 +59,7 @@ function useGameAudio() {
     setTimeout(() => playTone(1100, 0.15, "sine", 0.06), 80)
   }, [playTone])
 
-  return { hover, select, complete, error, xpGain, levelUp, streakFlame, playTone }
+  return { hover, select, complete, error, xpGain, levelUp, streakFlame }
 }
 
 // ElevenLabs TTS
@@ -78,7 +78,6 @@ function useVoice() {
         audio.play()
         audio.onended = () => URL.revokeObjectURL(url)
       } else {
-        // Fallback to browser TTS
         if ("speechSynthesis" in window) {
           window.speechSynthesis.cancel()
           const u = new SpeechSynthesisUtterance(text)
@@ -99,10 +98,24 @@ function useVoice() {
   return { speak }
 }
 
+interface QuestNode {
+  id: string
+  label: string
+  x: number
+  y: number
+  state: "completed" | "active" | "locked"
+  stars?: number
+  completedMessage?: string
+  bossIntro?: string
+  isBoss?: boolean
+  icon: string
+}
+
 export default function Home() {
   const [activeNode, setActiveNode] = useState<string | null>(null)
   const [xp, setXp] = useState(420)
   const [streak, setStreak] = useState(18)
+  const [level, setLevel] = useState(7)
   const [showLevelUp, setShowLevelUp] = useState(false)
   const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number }>>([])
   const [mounted, setMounted] = useState(false)
@@ -128,7 +141,6 @@ export default function Home() {
     audio.select()
     setActiveNode(node.id)
     
-    // Spawn XP particles
     const rect = (e.target as HTMLElement).getBoundingClientRect()
     const newParticles = Array.from({ length: 8 }, (_, i) => ({
       id: Date.now() + i,
@@ -160,7 +172,8 @@ export default function Home() {
         setTimeout(() => {
           audio.levelUp()
           setShowLevelUp(true)
-          speak("Level up! You are now level 8!")
+          setLevel(l => l + 1)
+          speak(`Level up! You are now level ${level + 1}!`)
           setTimeout(() => setShowLevelUp(false), 3000)
         }, 500)
         return 0
@@ -170,33 +183,36 @@ export default function Home() {
   }
 
   const questNodes: QuestNode[] = [
-    { id: "basics", label: "Basics", x: 15, y: 78, state: "completed", stars: 3, completedMessage: "Basics mastered! You have learned greetings and introductions." },
-    { id: "phrases", label: "Phrases", x: 28, y: 62, state: "completed", stars: 2, completedMessage: "Common phrases unlocked! Ready for real conversations." },
-    { id: "food", label: "Food", x: 45, y: 50, state: "completed", stars: 3, completedMessage: "Food vocabulary complete! Order anything at a restaurant." },
-    { id: "travel", label: "Travel", x: 55, y: 38, state: "active", bossIntro: "Boss battle: Navigate a busy train station using only Spanish!", isBoss: true },
-    { id: "family", label: "Family", x: 70, y: 28, state: "locked" },
-    { id: "work", label: "Work", x: 85, y: 15, state: "locked" },
+    { id: "basics", label: "Basics", x: 20, y: 80, state: "completed", stars: 3, icon: "👋", completedMessage: "Basics mastered! You have learned greetings and introductions." },
+    { id: "phrases", label: "Phrases", x: 35, y: 65, state: "completed", stars: 2, icon: "💬", completedMessage: "Common phrases unlocked! Ready for real conversations." },
+    { id: "food", label: "Food", x: 50, y: 50, state: "completed", stars: 3, icon: "🍕", completedMessage: "Food vocabulary complete! Order anything at a restaurant." },
+    { id: "travel", label: "Travel", x: 65, y: 38, state: "active", icon: "✈️", bossIntro: "Boss battle: Navigate a busy train station using only Spanish!", isBoss: true },
+    { id: "family", label: "Family", x: 80, y: 25, state: "locked", icon: "👨‍👩‍👧" },
   ]
 
   if (!mounted) return null
 
   return (
-    <main className="fixed inset-0 overflow-hidden bg-[#0d1117]">
-      {/* Animated background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(88, 204, 2, 0.12) 0%, transparent 50%)" }} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 20% 20%, rgba(255, 200, 0, 0.08) 0%, transparent 40%)" }} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 80% 30%, rgba(28, 176, 246, 0.06) 0%, transparent 35%)" }} />
-        {/* Floating particles */}
-        {[...Array(20)].map((_, i) => (
+    <main className="fixed inset-0 overflow-hidden" style={{ background: "linear-gradient(180deg, #131f24 0%, #0d1117 50%, #1a2c38 100%)" }}>
+      {/* Ambient Background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Gradient orbs */}
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] rounded-full opacity-30" style={{ background: "radial-gradient(circle, rgba(88, 204, 2, 0.4) 0%, transparent 60%)", filter: "blur(80px)" }} />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full opacity-20" style={{ background: "radial-gradient(circle, rgba(28, 176, 246, 0.5) 0%, transparent 60%)", filter: "blur(60px)" }} />
+        <div className="absolute top-[30%] right-[10%] w-[30%] h-[30%] rounded-full opacity-20" style={{ background: "radial-gradient(circle, rgba(255, 200, 0, 0.4) 0%, transparent 60%)", filter: "blur(50px)" }} />
+        
+        {/* Floating sparkles */}
+        {[...Array(15)].map((_, i) => (
           <div 
             key={i}
-            className="absolute w-1 h-1 rounded-full bg-[#58cc02]/30 animate-float-particle"
+            className="absolute w-1.5 h-1.5 rounded-full animate-float-particle"
             style={{
-              left: `${10 + (i * 4.5)}%`,
-              top: `${20 + (i % 5) * 15}%`,
-              animationDelay: `${i * 0.3}s`,
-              animationDuration: `${4 + (i % 3)}s`
+              background: i % 3 === 0 ? "#58cc02" : i % 3 === 1 ? "#ffc800" : "#1cb0f6",
+              left: `${5 + (i * 6.5)}%`,
+              top: `${15 + (i % 6) * 14}%`,
+              animationDelay: `${i * 0.4}s`,
+              animationDuration: `${5 + (i % 4)}s`,
+              boxShadow: `0 0 10px ${i % 3 === 0 ? "#58cc02" : i % 3 === 1 ? "#ffc800" : "#1cb0f6"}`
             }}
           />
         ))}
@@ -206,124 +222,104 @@ export default function Home() {
       {particles.map(p => (
         <div 
           key={p.id} 
-          className="fixed w-3 h-3 rounded-full bg-[#ffc800] animate-xp-fly pointer-events-none z-50"
-          style={{ left: p.x, top: p.y }}
+          className="fixed w-4 h-4 rounded-full bg-[#ffc800] animate-xp-fly pointer-events-none z-50"
+          style={{ left: p.x, top: p.y, boxShadow: "0 0 15px #ffc800" }}
         />
       ))}
 
       {/* Level Up Overlay */}
       {showLevelUp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in">
           <div className="text-center animate-level-up">
-            <div className="text-8xl mb-4">🎉</div>
-            <h2 className="text-5xl font-black text-[#58cc02] mb-2" style={{ textShadow: "0 0 40px rgba(88, 204, 2, 0.8)" }}>LEVEL UP!</h2>
-            <p className="text-2xl font-bold text-white/90">You reached Level 8</p>
+            <div className="text-[120px] mb-6 animate-bounce">🎉</div>
+            <h2 className="text-6xl font-black text-[#58cc02] mb-4 tracking-tight" style={{ textShadow: "0 0 60px rgba(88, 204, 2, 0.8), 0 4px 0 #2d5a01" }}>LEVEL UP!</h2>
+            <p className="text-3xl font-bold text-white">You reached Level {level + 1}</p>
+            <div className="mt-8 flex justify-center gap-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="text-4xl animate-bounce" style={{ animationDelay: `${i * 0.1}s` }}>⭐</div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Top HUD - Minimal */}
-      <header className="absolute top-0 left-0 right-0 z-30 p-4 flex items-center justify-between">
-        {/* Streak */}
-        <button 
-          onClick={handleStreakTap}
-          onMouseEnter={audio.hover}
-          className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#ff9600]/20 border-2 border-[#ff9600]/50 hover:bg-[#ff9600]/30 transition-all hover:scale-105 active:scale-95"
-        >
-          <div className="relative w-8 h-10">
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-8 rounded-[50%_50%_50%_50%/60%_60%_40%_40%] bg-gradient-to-t from-[#ff9600] to-[#ffcc00] animate-flame" />
-            <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-3 h-5 rounded-[50%_50%_50%_50%/60%_60%_40%_40%] bg-gradient-to-t from-[#ffee00] to-[#ffffff] animate-flame-inner" />
+      {/* Top HUD */}
+      <header className="absolute top-0 left-0 right-0 z-30 p-4 md:p-6">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          {/* Streak */}
+          <button 
+            onClick={handleStreakTap}
+            onMouseEnter={audio.hover}
+            className="flex items-center gap-3 px-5 py-3 rounded-2xl backdrop-blur-md transition-all hover:scale-105 active:scale-95"
+            style={{ background: "linear-gradient(135deg, rgba(255, 150, 0, 0.25) 0%, rgba(255, 100, 0, 0.15) 100%)", border: "2px solid rgba(255, 150, 0, 0.5)", boxShadow: "0 4px 20px rgba(255, 150, 0, 0.2)" }}
+          >
+            <div className="relative w-8 h-10">
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-9 rounded-[50%_50%_50%_50%/60%_60%_40%_40%] bg-gradient-to-t from-[#ff4500] via-[#ff9600] to-[#ffcc00] animate-flame" style={{ filter: "blur(0.5px)" }} />
+              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-3 h-5 rounded-[50%_50%_50%_50%/60%_60%_40%_40%] bg-gradient-to-t from-[#ffee00] to-[#ffffff] animate-flame-inner" />
+            </div>
+            <span className="text-2xl font-black text-[#ff9600]" style={{ textShadow: "0 2px 10px rgba(255, 150, 0, 0.5)" }}>{streak}</span>
+          </button>
+
+          {/* Logo */}
+          <div className="flex flex-col items-center">
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight">
+              <span className="text-[#58cc02]" style={{ textShadow: "0 0 20px rgba(88, 204, 2, 0.5)" }}>duo</span>
+              <span className="text-white">lingo</span>
+            </h1>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs font-bold text-[#58cc02]/70 uppercase tracking-widest">Level {level}</span>
+              <span className="text-[#58cc02]/50">•</span>
+              <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Spanish</span>
+            </div>
           </div>
-          <span className="text-2xl font-black text-[#ff9600]">{streak}</span>
-        </button>
 
-        {/* Logo */}
-        <h1 className="text-2xl md:text-3xl font-black tracking-tight">
-          <span className="text-[#58cc02]">duo</span>
-          <span className="text-white">lingo</span>
-        </h1>
-
-        {/* XP */}
-        <button
-          onClick={handleXpGain}
-          onMouseEnter={audio.hover}
-          className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#58cc02]/20 border-2 border-[#58cc02]/50 hover:bg-[#58cc02]/30 transition-all hover:scale-105 active:scale-95"
-        >
-          <span className="text-2xl font-black text-[#58cc02]">{xp}</span>
-          <span className="text-sm font-bold text-[#58cc02]/70">XP</span>
-        </button>
+          {/* XP */}
+          <button
+            onClick={handleXpGain}
+            onMouseEnter={audio.hover}
+            className="flex items-center gap-3 px-5 py-3 rounded-2xl backdrop-blur-md transition-all hover:scale-105 active:scale-95"
+            style={{ background: "linear-gradient(135deg, rgba(88, 204, 2, 0.25) 0%, rgba(60, 150, 0, 0.15) 100%)", border: "2px solid rgba(88, 204, 2, 0.5)", boxShadow: "0 4px 20px rgba(88, 204, 2, 0.2)" }}
+          >
+            <div className="flex flex-col items-end">
+              <span className="text-2xl font-black text-[#58cc02]" style={{ textShadow: "0 2px 10px rgba(88, 204, 2, 0.5)" }}>{xp}</span>
+              <span className="text-[10px] font-bold text-[#58cc02]/60 uppercase">/ 620 XP</span>
+            </div>
+            <div className="w-2 h-8 bg-[#1a2c38] rounded-full overflow-hidden">
+              <div className="w-full bg-gradient-to-t from-[#45a302] to-[#58cc02] rounded-full transition-all duration-500" style={{ height: `${(xp / 620) * 100}%` }} />
+            </div>
+          </button>
+        </div>
       </header>
 
-      {/* Main Quest Map - Full Screen */}
-      <div className="absolute inset-0 pt-20 pb-24">
+      {/* Main Quest Map */}
+      <div className="absolute inset-0 pt-28 pb-32 md:pt-32 md:pb-36">
         {/* Quest Path SVG */}
-        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="xMidYMid slice">
+        <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
           <defs>
-            <linearGradient id="pathGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id="pathComplete" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#58cc02" />
               <stop offset="100%" stopColor="#89e219" />
             </linearGradient>
-            <linearGradient id="pathGold" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id="pathActive" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#ffc800" />
-              <stop offset="100%" stopColor="#ffee00" />
+              <stop offset="100%" stopColor="#ff9600" />
             </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <filter id="pathGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="blur"/>
               <feMerge>
-                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="blur"/>
                 <feMergeNode in="SourceGraphic"/>
               </feMerge>
             </filter>
           </defs>
           
           {/* Completed paths */}
-          <path 
-            d="M 15% 78% Q 22% 70% 28% 62%" 
-            fill="none" 
-            stroke="url(#pathGreen)" 
-            strokeWidth="8" 
-            strokeLinecap="round"
-            filter="url(#glow)"
-          />
-          <path 
-            d="M 28% 62% Q 36% 56% 45% 50%" 
-            fill="none" 
-            stroke="url(#pathGreen)" 
-            strokeWidth="8" 
-            strokeLinecap="round"
-            filter="url(#glow)"
-          />
-          <path 
-            d="M 45% 50% Q 50% 44% 55% 38%" 
-            fill="none" 
-            stroke="url(#pathGreen)" 
-            strokeWidth="8" 
-            strokeLinecap="round"
-            filter="url(#glow)"
-          />
+          <path d="M 20% 80% Q 27% 72% 35% 65%" fill="none" stroke="url(#pathComplete)" strokeWidth="10" strokeLinecap="round" filter="url(#pathGlow)" />
+          <path d="M 35% 65% Q 42% 57% 50% 50%" fill="none" stroke="url(#pathComplete)" strokeWidth="10" strokeLinecap="round" filter="url(#pathGlow)" />
+          <path d="M 50% 50% Q 57% 44% 65% 38%" fill="none" stroke="url(#pathComplete)" strokeWidth="10" strokeLinecap="round" filter="url(#pathGlow)" />
           
-          {/* Active path - pulsing */}
-          <path 
-            d="M 55% 38% Q 62% 33% 70% 28%" 
-            fill="none" 
-            stroke="url(#pathGold)" 
-            strokeWidth="8" 
-            strokeLinecap="round"
-            strokeDasharray="15 10"
-            className="animate-dash"
-            filter="url(#glow)"
-          />
-          
-          {/* Locked paths */}
-          <path 
-            d="M 70% 28% Q 77% 22% 85% 15%" 
-            fill="none" 
-            stroke="#3d4f5f" 
-            strokeWidth="6" 
-            strokeLinecap="round"
-            strokeDasharray="8 8"
-            opacity="0.5"
-          />
+          {/* Active path */}
+          <path d="M 65% 38% Q 72% 32% 80% 25%" fill="none" stroke="url(#pathActive)" strokeWidth="10" strokeLinecap="round" strokeDasharray="20 12" className="animate-dash" filter="url(#pathGlow)" />
         </svg>
 
         {/* Quest Nodes */}
@@ -332,126 +328,123 @@ export default function Home() {
             key={node.id}
             onClick={(e) => handleNodeClick(node, e)}
             onMouseEnter={() => node.state !== "locked" && audio.hover()}
-            className={`absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
-              node.state === "locked" ? "cursor-not-allowed" : "cursor-pointer hover:scale-110 active:scale-95"
+            className={`absolute -translate-x-1/2 -translate-y-1/2 transition-all duration-300 group ${
+              node.state === "locked" ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:scale-110 active:scale-95"
             } ${activeNode === node.id ? "scale-110" : ""}`}
             style={{ left: `${node.x}%`, top: `${node.y}%` }}
           >
+            {/* Pulse rings for active */}
+            {node.state === "active" && (
+              <>
+                <span className="absolute inset-[-12px] rounded-full border-4 border-[#ffc800]/50 animate-ping-slow" />
+                <span className="absolute inset-[-24px] rounded-full border-2 border-[#ffc800]/25 animate-ping-slower" />
+              </>
+            )}
+
+            {/* Node circle */}
             <div 
-              className={`relative flex flex-col items-center justify-center rounded-full border-4 transition-all ${
-                node.isBoss ? "w-24 h-24 md:w-28 md:h-28" : "w-16 h-16 md:w-20 md:h-20"
-              } ${
-                node.state === "completed" ? "bg-[#58cc02] border-[#45a302]" :
-                node.state === "active" ? "bg-gradient-to-br from-[#ffc800] to-[#ff9600] border-[#e08600] animate-pulse-glow" :
-                "bg-[#37464f] border-[#2b383f]"
+              className={`relative flex items-center justify-center rounded-full transition-all ${
+                node.isBoss ? "w-20 h-20 md:w-24 md:h-24" : "w-16 h-16 md:w-20 md:h-20"
               }`}
               style={{
+                background: node.state === "completed" 
+                  ? "linear-gradient(180deg, #89e219 0%, #58cc02 50%, #45a302 100%)"
+                  : node.state === "active"
+                  ? "linear-gradient(180deg, #ffee00 0%, #ffc800 50%, #ff9600 100%)"
+                  : "linear-gradient(180deg, #4a5568 0%, #2d3748 100%)",
+                border: node.state === "completed" 
+                  ? "4px solid #2d5a01"
+                  : node.state === "active"
+                  ? "4px solid #cc7700"
+                  : "4px solid #1a202c",
                 boxShadow: node.state === "active" 
-                  ? "0 0 30px rgba(255, 200, 0, 0.6), 0 8px 0 #1a1a2a" 
+                  ? "0 0 40px rgba(255, 200, 0, 0.6), 0 8px 0 #8b5500, inset 0 -4px 0 rgba(0,0,0,0.2)" 
                   : node.state === "completed"
-                  ? "0 0 20px rgba(88, 204, 2, 0.4), 0 6px 0 #1a1a2a"
-                  : "0 6px 0 #1a1a2a"
+                  ? "0 0 25px rgba(88, 204, 2, 0.4), 0 6px 0 #1a3a01, inset 0 -4px 0 rgba(0,0,0,0.2)"
+                  : "0 6px 0 #0d1117, inset 0 -4px 0 rgba(0,0,0,0.3)"
               }}
             >
-              {/* Pulse rings for active */}
-              {node.state === "active" && (
-                <>
-                  <span className="absolute inset-[-8px] rounded-full border-4 border-[#ffc800]/60 animate-ping-slow" />
-                  <span className="absolute inset-[-16px] rounded-full border-2 border-[#ffc800]/30 animate-ping-slower" />
-                </>
-              )}
-
               {/* Icon */}
-              {node.state === "completed" ? (
-                <span className="text-2xl md:text-3xl text-white font-black">✓</span>
-              ) : node.state === "active" ? (
-                <span className="text-3xl md:text-4xl">⚔️</span>
-              ) : (
-                <span className="text-2xl md:text-3xl opacity-60">🔒</span>
-              )}
+              <span className={`${node.isBoss ? "text-4xl md:text-5xl" : "text-3xl md:text-4xl"} ${node.state === "locked" ? "grayscale" : ""}`}>
+                {node.state === "locked" ? "🔒" : node.icon}
+              </span>
 
-              {/* Stars for completed */}
-              {node.stars && node.state === "completed" && (
-                <div className="absolute -bottom-1 flex gap-0.5">
-                  {[...Array(3)].map((_, i) => (
-                    <span 
-                      key={i} 
-                      className={`text-xs ${i < node.stars! ? "text-[#ffc800]" : "text-[#3d4f5f]"}`}
-                    >
-                      ★
-                    </span>
-                  ))}
+              {/* Checkmark for completed */}
+              {node.state === "completed" && (
+                <div className="absolute -top-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-[#58cc02] text-sm font-black">✓</span>
                 </div>
               )}
 
               {/* Boss crown */}
-              {node.isBoss && (
-                <span className="absolute -top-3 text-2xl animate-bounce-slow">👑</span>
+              {node.isBoss && node.state === "active" && (
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-3xl animate-bounce-slow" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" }}>👑</div>
               )}
             </div>
 
+            {/* Stars for completed */}
+            {node.stars && node.state === "completed" && (
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex gap-0.5 bg-[#0d1117]/80 px-2 py-0.5 rounded-full">
+                {[...Array(3)].map((_, i) => (
+                  <span key={i} className={`text-sm ${i < node.stars! ? "text-[#ffc800]" : "text-[#3d4f5f]"}`} style={i < node.stars! ? { filter: "drop-shadow(0 0 4px #ffc800)" } : {}}>★</span>
+                ))}
+              </div>
+            )}
+
             {/* Label */}
-            <span className={`mt-2 text-xs md:text-sm font-bold tracking-wide ${
-              node.state === "locked" ? "text-[#5b6b76]" : "text-white"
-            }`}>
-              {node.label.toUpperCase()}
+            <span className={`absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-sm md:text-base font-bold tracking-wide transition-all ${
+              node.state === "locked" ? "text-[#5b6b76]" : node.state === "active" ? "text-[#ffc800]" : "text-white"
+            } ${activeNode === node.id ? "scale-110" : "group-hover:scale-105"}`}
+            style={node.state === "active" ? { textShadow: "0 0 10px rgba(255, 200, 0, 0.5)" } : {}}>
+              {node.label}
             </span>
           </button>
         ))}
 
-        {/* Duo Character - Animated */}
-        <div className="absolute left-[50%] bottom-[30%] -translate-x-1/2 animate-duo-float">
+        {/* Duo Character */}
+        <div className="absolute left-[45%] bottom-[18%] animate-duo-float pointer-events-none">
           <div className="relative">
-            {/* Body */}
-            <div className="w-16 h-20 md:w-20 md:h-24 bg-[#58cc02] rounded-[45%] border-4 border-[#45a302] relative" style={{ boxShadow: "0 6px 0 #2d5a01" }}>
+            <div className="w-20 h-24 md:w-24 md:h-28 rounded-[45%] relative" style={{ background: "linear-gradient(180deg, #89e219 0%, #58cc02 50%, #45a302 100%)", border: "4px solid #2d5a01", boxShadow: "0 8px 0 #1a3a01, 0 12px 30px rgba(0,0,0,0.4)" }}>
               {/* Eyes */}
-              <div className="absolute top-5 left-2.5 w-4 h-4 md:w-5 md:h-5 bg-white rounded-full border-2 border-[#1a1a2a]">
-                <div className="absolute top-1 left-1.5 w-2 h-2 bg-[#1a1a2a] rounded-full animate-eye-move" />
+              <div className="absolute top-5 left-3 w-5 h-5 md:w-6 md:h-6 bg-white rounded-full border-2 border-[#1a1a2a]">
+                <div className="absolute top-1.5 left-2 w-2.5 h-2.5 bg-[#1a1a2a] rounded-full animate-eye-move" />
               </div>
-              <div className="absolute top-5 right-2.5 w-4 h-4 md:w-5 md:h-5 bg-white rounded-full border-2 border-[#1a1a2a]">
-                <div className="absolute top-1 left-1.5 w-2 h-2 bg-[#1a1a2a] rounded-full animate-eye-move" />
+              <div className="absolute top-5 right-3 w-5 h-5 md:w-6 md:h-6 bg-white rounded-full border-2 border-[#1a1a2a]">
+                <div className="absolute top-1.5 left-2 w-2.5 h-2.5 bg-[#1a1a2a] rounded-full animate-eye-move" />
               </div>
               {/* Beak */}
-              <div className="absolute top-9 md:top-11 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[14px] border-transparent border-t-[#ffc800]" style={{ filter: "drop-shadow(0 2px 0 #cc9900)" }} />
+              <div className="absolute top-12 md:top-14 left-1/2 -translate-x-1/2">
+                <div className="w-0 h-0 border-l-[12px] border-r-[12px] border-t-[16px] border-transparent border-t-[#ffc800]" style={{ filter: "drop-shadow(0 3px 0 #cc9900)" }} />
+              </div>
               {/* Wings */}
-              <div className="absolute bottom-3 -left-2 w-4 h-6 bg-[#45a302] rounded-[40%] border-2 border-[#2d5a01] -rotate-12 animate-wing-flap" />
-              <div className="absolute bottom-3 -right-2 w-4 h-6 bg-[#45a302] rounded-[40%] border-2 border-[#2d5a01] rotate-12 animate-wing-flap" />
+              <div className="absolute bottom-4 -left-3 w-5 h-8 rounded-[40%] -rotate-12 animate-wing-flap" style={{ background: "linear-gradient(180deg, #58cc02 0%, #45a302 100%)", border: "3px solid #2d5a01" }} />
+              <div className="absolute bottom-4 -right-3 w-5 h-8 rounded-[40%] rotate-12 animate-wing-flap" style={{ background: "linear-gradient(180deg, #58cc02 0%, #45a302 100%)", border: "3px solid #2d5a01", animationDelay: "0.1s" }} />
             </div>
             {/* Shadow */}
-            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-12 h-4 bg-black/30 rounded-full blur-sm" />
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-16 h-5 bg-black/40 rounded-[50%] blur-sm" />
           </div>
         </div>
       </div>
 
-      {/* Bottom Action Bar - Single Button */}
-      <footer className="absolute bottom-0 left-0 right-0 z-30 p-4 flex justify-center">
+      {/* Bottom CTA */}
+      <footer className="absolute bottom-0 left-0 right-0 z-30 p-4 md:p-6 flex justify-center">
         <button
           onClick={() => {
             audio.select()
             speak("Starting your Spanish lesson. Get ready!")
           }}
           onMouseEnter={audio.hover}
-          className="px-12 py-4 rounded-2xl bg-[#58cc02] text-white text-xl font-black uppercase tracking-wide transition-all hover:bg-[#45a302] hover:scale-105 active:scale-95 active:translate-y-1"
-          style={{ boxShadow: "0 8px 0 #2d5a01, 0 12px 30px rgba(88, 204, 2, 0.4)" }}
+          className="px-16 py-5 rounded-2xl text-white text-xl md:text-2xl font-black uppercase tracking-wide transition-all hover:scale-105 active:scale-95 active:translate-y-1"
+          style={{ 
+            background: "linear-gradient(180deg, #89e219 0%, #58cc02 50%, #45a302 100%)", 
+            border: "4px solid #2d5a01",
+            boxShadow: "0 8px 0 #1a3a01, 0 12px 40px rgba(88, 204, 2, 0.4), inset 0 2px 0 rgba(255,255,255,0.2)",
+            textShadow: "0 2px 0 #2d5a01"
+          }}
         >
           Start Lesson
         </button>
       </footer>
-
-      {/* Scanlines for retro feel */}
-      <div className="fixed inset-0 pointer-events-none z-40 opacity-[0.03]" style={{ background: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px)" }} />
     </main>
   )
-}
-
-interface QuestNode {
-  id: string
-  label: string
-  x: number
-  y: number
-  state: "completed" | "active" | "locked"
-  stars?: number
-  completedMessage?: string
-  bossIntro?: string
-  isBoss?: boolean
 }
