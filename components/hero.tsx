@@ -2,18 +2,12 @@
 
 import { useEffect, useState } from "react"
 
-interface HeroProps {
-  onReadAloud?: (text: string) => void
-}
-
-export function Hero({ onReadAloud }: HeroProps) {
+export function Hero() {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
-
-  const heroText = "Inscribe your thoughts in the eternal archive. A sanctuary where your notes, documents, and wisdom are preserved like illuminated manuscripts of ages past."
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden parchment-texture">
@@ -46,20 +40,8 @@ export function Hero({ onReadAloud }: HeroProps) {
         <p 
           className={`font-sans text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          {heroText}
+          Inscribe your thoughts in the eternal archive. A sanctuary where your notes, documents, and wisdom are preserved like illuminated manuscripts of ages past.
         </p>
-
-        {/* Read Aloud Button */}
-        <button
-          onClick={() => onReadAloud?.(heroText)}
-          className={`inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-all duration-300 mb-10 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-          style={{ transitionDelay: '400ms' }}
-        >
-          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-          </svg>
-          Read this passage aloud
-        </button>
 
         {/* CTA Buttons */}
         <div 

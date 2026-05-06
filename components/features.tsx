@@ -1,10 +1,4 @@
-"use client"
-
-interface FeaturesProps {
-  onReadAloud?: (text: string) => void
-}
-
-export function Features({ onReadAloud }: FeaturesProps) {
+export function Features() {
   const features = [
     {
       icon: (
@@ -62,8 +56,6 @@ export function Features({ onReadAloud }: FeaturesProps) {
     },
   ]
 
-  const sectionDescription = "The sacred arts that transform mere notes into eternal wisdom. Each tool has been refined through countless iterations to serve the modern scribe."
-
   return (
     <section id="features" className="py-24 md:py-32 bg-background parchment-texture">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
@@ -76,17 +68,8 @@ export function Features({ onReadAloud }: FeaturesProps) {
             Tools of the Illuminator
           </h2>
           <p className="font-sans text-lg text-muted-foreground max-w-2xl mx-auto">
-            {sectionDescription}
+            The sacred arts that transform mere notes into eternal wisdom. Each tool has been refined through countless iterations to serve the modern scribe.
           </p>
-          <button
-            onClick={() => onReadAloud?.(sectionDescription)}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mt-4"
-          >
-            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-            </svg>
-            Read aloud
-          </button>
         </div>
 
         {/* Features Grid */}

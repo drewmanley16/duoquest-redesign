@@ -1,10 +1,4 @@
-"use client"
-
-interface TestimonialsProps {
-  onReadAloud?: (text: string) => void
-}
-
-export function Testimonials({ onReadAloud }: TestimonialsProps) {
+export function Testimonials() {
   const testimonials = [
     {
       quote: "The Codex has transformed how I preserve my research. It feels less like software and more like a sacred practice of knowledge keeping.",
@@ -19,7 +13,7 @@ export function Testimonials({ onReadAloud }: TestimonialsProps) {
       institution: "Meridian Studios"
     },
     {
-      quote: "The ambient soundscapes while writing are transcendent. I find myself entering deeper states of focus than ever before.",
+      quote: "The writing experience is transcendent. I find myself entering deeper states of focus than ever before.",
       author: "Sister Amelia Wright",
       title: "Author & Contemplative",
       institution: "Abbey of St. Clare"
@@ -59,17 +53,6 @@ export function Testimonials({ onReadAloud }: TestimonialsProps) {
                 <blockquote className="font-sans text-background/90 leading-relaxed mb-6 italic">
                   {testimonial.quote}
                 </blockquote>
-                
-                {/* Read Aloud */}
-                <button
-                  onClick={() => onReadAloud?.(testimonial.quote)}
-                  className="inline-flex items-center gap-2 text-xs text-background/50 hover:text-accent transition-colors mb-6"
-                >
-                  <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-                  </svg>
-                  Listen
-                </button>
 
                 {/* Author */}
                 <div className="border-t border-background/10 pt-4">
