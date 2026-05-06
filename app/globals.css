@@ -1,12 +1,10 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* Fonts - using CSS variables from next/font */
-  --font-sans: var(--font-crimson, 'Crimson Text'), Georgia, serif;
-  --font-serif: var(--font-cinzel, 'Cinzel'), 'Times New Roman', serif;
-  --font-mono: var(--font-fell, 'IM Fell English'), serif;
+  --font-sans: var(--font-crimson), Georgia, serif;
+  --font-serif: var(--font-cinzel), 'Times New Roman', serif;
+  --font-mono: var(--font-fell), serif;
   
-  /* Monastic Manuscript Color Palette */
   --color-parchment: #f4ede4;
   --color-parchment-dark: #e8dfd3;
   --color-parchment-aged: #d9cfc1;
@@ -19,7 +17,6 @@
   --color-burgundy-dark: #4a1f24;
   --color-forest: #2d4a3e;
   
-  /* Semantic tokens */
   --color-background: #f4ede4;
   --color-foreground: #2c2416;
   --color-primary: #722f37;
@@ -36,20 +33,14 @@
   --radius: 0.25rem;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 html {
   scroll-behavior: smooth;
 }
 
 body {
   min-height: 100vh;
-  background-color: #f4ede4;
-  color: #2c2416;
+  background-color: var(--color-parchment);
+  color: var(--color-ink);
   overflow-x: hidden;
   line-height: 1.6;
 }

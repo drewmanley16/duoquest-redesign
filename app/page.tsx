@@ -71,7 +71,7 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-parchment">
+    <main className="min-h-screen bg-background">
       <Header onStartTour={startTour} />
       
       <Hero onReadAloud={speakText} />

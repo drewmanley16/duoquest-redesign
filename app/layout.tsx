@@ -42,9 +42,9 @@ export default function RootLayout({
   return (
     <html 
       lang="en" 
-      className={`${cinzel.variable} ${crimsonText.variable} ${imFellEnglish.variable} bg-parchment`}
+      className={`${cinzel.variable} ${crimsonText.variable} ${imFellEnglish.variable} bg-background`}
     >
-      <body className="font-sans antialiased min-h-screen bg-parchment text-ink">
+      <body className="font-sans antialiased min-h-screen bg-background text-foreground">
         {children}
       </body>
     </html>

@@ -18,8 +18,8 @@ export function Hero({ onReadAloud }: HeroProps) {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden parchment-texture">
       {/* Decorative Border Frame */}
-      <div className="absolute inset-8 border border-gold/20 pointer-events-none" />
-      <div className="absolute inset-12 border border-gold/10 pointer-events-none" />
+      <div className="absolute inset-8 border border-accent/20 pointer-events-none" />
+      <div className="absolute inset-12 border border-accent/10 pointer-events-none" />
 
       {/* Main Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
@@ -34,7 +34,7 @@ export function Hero({ onReadAloud }: HeroProps) {
 
         {/* Main Heading */}
         <h1 
-          className={`font-serif text-5xl md:text-7xl lg:text-8xl text-ink leading-tight tracking-tight mb-8 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          className={`font-serif text-5xl md:text-7xl lg:text-8xl text-foreground leading-tight tracking-tight mb-8 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <span className="block">Where Knowledge</span>
           <span className="block mt-2">
@@ -44,7 +44,7 @@ export function Hero({ onReadAloud }: HeroProps) {
 
         {/* Subtitle */}
         <p 
-          className={`font-sans text-lg md:text-xl text-ink-light max-w-2xl mx-auto mb-10 leading-relaxed transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          className={`font-sans text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           {heroText}
         </p>
@@ -52,7 +52,7 @@ export function Hero({ onReadAloud }: HeroProps) {
         {/* Read Aloud Button */}
         <button
           onClick={() => onReadAloud?.(heroText)}
-          className={`inline-flex items-center gap-2 text-sm text-ink-light hover:text-burgundy transition-all duration-300 mb-10 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+          className={`inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-all duration-300 mb-10 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
           style={{ transitionDelay: '400ms' }}
         >
           <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -67,14 +67,14 @@ export function Hero({ onReadAloud }: HeroProps) {
         >
           <a 
             href="#" 
-            className="group relative px-8 py-4 bg-ink text-parchment font-sans text-base hover:bg-burgundy transition-colors"
+            className="group relative px-8 py-4 bg-foreground text-background font-sans text-base hover:bg-primary transition-colors"
           >
             <span className="relative z-10">Begin Your Chronicle</span>
-            <span className="absolute inset-0 border border-gold opacity-0 group-hover:opacity-100 transition-opacity -m-1" />
+            <span className="absolute inset-0 border border-accent opacity-0 group-hover:opacity-100 transition-opacity -m-1" />
           </a>
           <a 
             href="#product" 
-            className="group flex items-center gap-2 px-8 py-4 text-ink font-sans text-base hover:text-burgundy transition-colors"
+            className="group flex items-center gap-2 px-8 py-4 text-foreground font-sans text-base hover:text-primary transition-colors"
           >
             <span>Explore the Scriptorium</span>
             <svg viewBox="0 0 24 24" className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2">
@@ -85,14 +85,14 @@ export function Hero({ onReadAloud }: HeroProps) {
 
         {/* Trust Indicators */}
         <div 
-          className={`mt-16 pt-8 border-t border-ink-light/20 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+          className={`mt-16 pt-8 border-t border-muted-foreground/20 transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <p className="text-sm text-ink-light/60 mb-6 font-sans tracking-wide uppercase">
+          <p className="text-sm text-muted-foreground/60 mb-6 font-sans tracking-wide uppercase">
             Trusted by scholars across the realm
           </p>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-50">
             {['Oxford', 'Cambridge', 'Harvard', 'Yale', 'Stanford'].map((name) => (
-              <span key={name} className="font-serif text-lg text-ink-light">
+              <span key={name} className="font-serif text-lg text-muted-foreground">
                 {name}
               </span>
             ))}
@@ -101,9 +101,9 @@ export function Hero({ onReadAloud }: HeroProps) {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-ink-light/50">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground/50">
         <span className="text-xs font-sans tracking-widest uppercase">Scroll</span>
-        <div className="w-px h-8 bg-gradient-to-b from-ink-light/50 to-transparent" />
+        <div className="w-px h-8 bg-gradient-to-b from-muted-foreground/50 to-transparent" />
       </div>
     </section>
   )
