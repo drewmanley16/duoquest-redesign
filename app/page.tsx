@@ -1,105 +1,461 @@
 "use client"
 
-import { useState, useCallback } from "react"
-import { Header } from "@/components/header"
-import { Hero } from "@/components/hero"
-import { ProductShowcase } from "@/components/product-showcase"
-import { Features } from "@/components/features"
-import { Testimonials } from "@/components/testimonials"
-import { Footer } from "@/components/footer"
-import { AudioController } from "@/components/audio-controller"
-import { GuidedTour } from "@/components/guided-tour"
-import { Toast } from "@/components/toast"
+import { useCallback, useEffect, useRef, useState } from "react"
+
+type AmbientMode = "off" | "library" | "rain" | "focus"
+type VoiceMode = "editor" | "archivist" | "operator"
+
+const tourLines = {
+  overview:
+    "Briefing mode active. Notion Atlas turns docs, projects, wiki pages, and AI into a living paper desk. The launch room shows decisions, owners, risks, tasks, and the next move in one readable surface.",
+  workspace:
+    "The canvas keeps Notion recognizable: documents, tables, project boards, and wiki pages all live together, but the interface feels like a field desk for serious ideas.",
+  ai:
+    "The voice layer summarizes your workspace, reads page briefs aloud, and helps you move through dense knowledge without staring at every block.",
+}
+
+const voiceModes: Array<{ id: VoiceMode; label: string; note: string }> = [
+  { id: "editor", label: "Editor", note: "crisp page critique" },
+  { id: "archivist", label: "Archivist", note: "calm memory keeper" },
+  { id: "operator", label: "Operator", note: "fast launch control" },
+]
+
+const workspaceCards = [
+  {
+    label: "Docs",
+    title: "Launch Notes",
+    meta: "Edited 4 min ago",
+    body: "A focused writing surface for plans, specs, meeting notes, and long-form thinking.",
+  },
+  {
+    label: "Projects",
+    title: "Roadmap Board",
+    meta: "12 active tasks",
+    body: "Tasks, owners, statuses, and timelines arranged like a command table.",
+  },
+  {
+    label: "Wiki",
+    title: "Team Memory",
+    meta: "238 pages",
+    body: "A searchable source of truth where decisions, context, and references stay connected.",
+  },
+]
+
+const features = [
+  ["Write", "Docs, notes, specs, briefs, and meeting pages with a calm editor."],
+  ["Organize", "Databases, boards, calendars, and linked pages for every workflow."],
+  ["Collaborate", "Comments, mentions, shared spaces, and live team context."],
+  ["Ask AI", "Summaries, drafts, answers, and workspace help when the page gets dense."],
+]
+
+const aiSummary =
+  "AI summary generated: ship the voice brief first, tighten homepage copy, record a 30 second walkthrough, and keep Notion primitives visible."
+
+const waveformBars = [32, 62, 46, 82, 38, 70, 54, 92, 44, 68, 36, 76, 52, 88, 42, 64]
 
 export default function Home() {
-  const [toastMessage, setToastMessage] = useState("")
+  const [activeCard, setActiveCard] = useState(0)
   const [soundEnabled, setSoundEnabled] = useState(true)
-  const [tourActive, setTourActive] = useState(false)
+  const [toast, setToast] = useState("")
+  const [ambient, setAmbient] = useState<AmbientMode>("off")
+  const [voiceMode, setVoiceMode] = useState<VoiceMode>("editor")
+  const [briefingMode, setBriefingMode] = useState(false)
+  const [isNarrating, setIsNarrating] = useState(false)
+  const [briefProgress, setBriefProgress] = useState(34)
+  const [transcript, setTranscript] = useState("Ready for voice brief.")
+  const [typedSummary, setTypedSummary] = useState("")
+  const [cursorTarget, setCursorTarget] = useState(0)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const progressTimerRef = useRef<number | null>(null)
 
   const showToast = useCallback((message: string) => {
-    setToastMessage(message)
-    setTimeout(() => setToastMessage(""), 3500)
+    setToast(message)
+    window.setTimeout(() => setToast(""), 2800)
   }, [])
 
-  const speakText = useCallback((text: string) => {
-    if (!soundEnabled) {
-      showToast("Voice reading is disabled")
+  useEffect(() => {
+    if (!briefingMode) {
+      setTypedSummary("")
       return
     }
-    
-    if (!("speechSynthesis" in window)) {
-      showToast("Speech synthesis not supported in this browser")
-      return
-    }
-    
-    // Cancel any ongoing speech
-    window.speechSynthesis.cancel()
-    
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.rate = 0.9
-    utterance.pitch = 1.0
-    utterance.volume = 0.8
-    
-    // Try to use a more natural voice if available
-    const voices = window.speechSynthesis.getVoices()
-    const preferredVoice = voices.find(
-      voice => voice.lang.startsWith('en') && voice.name.includes('Natural')
-    ) || voices.find(
-      voice => voice.lang.startsWith('en-GB')
-    ) || voices.find(
-      voice => voice.lang.startsWith('en')
-    )
-    
-    if (preferredVoice) {
-      utterance.voice = preferredVoice
-    }
-    
-    window.speechSynthesis.speak(utterance)
-    showToast("Reading passage aloud...")
-  }, [soundEnabled, showToast])
 
-  const startTour = useCallback(() => {
-    setTourActive(true)
+    let index = 0
+    const timer = window.setInterval(() => {
+      index += 1
+      setTypedSummary(aiSummary.slice(0, index))
+      if (index >= aiSummary.length) {
+        window.clearInterval(timer)
+      }
+    }, 28)
+
+    return () => window.clearInterval(timer)
+  }, [briefingMode])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setCursorTarget((current) => (current + 1) % 3)
+    }, 2600)
+
+    return () => window.clearInterval(timer)
   }, [])
 
-  const closeTour = useCallback(() => {
-    setTourActive(false)
-    // Cancel any speech when closing tour
-    if ("speechSynthesis" in window) {
+  const finishNarration = useCallback(() => {
+    setIsNarrating(false)
+    if (progressTimerRef.current) {
+      window.clearInterval(progressTimerRef.current)
+      progressTimerRef.current = null
+    }
+  }, [])
+
+  const runProgress = useCallback(() => {
+    if (progressTimerRef.current) {
+      window.clearInterval(progressTimerRef.current)
+    }
+
+    setBriefProgress(8)
+    progressTimerRef.current = window.setInterval(() => {
+      setBriefProgress((current) => {
+        if (current >= 100) {
+          if (progressTimerRef.current) {
+            window.clearInterval(progressTimerRef.current)
+            progressTimerRef.current = null
+          }
+          return 100
+        }
+
+        return current + 4
+      })
+    }, 140)
+  }, [])
+
+  const speak = useCallback(
+    async (text: string, mode: VoiceMode = voiceMode) => {
+      if (!soundEnabled) {
+        showToast("Voice guide is muted")
+        return
+      }
+
+      setIsNarrating(true)
+      setTranscript(text)
+
+      try {
+        if (audioRef.current) {
+          audioRef.current.pause()
+          URL.revokeObjectURL(audioRef.current.src)
+        }
+
+        showToast(`Generating ${mode} voice brief`)
+        const response = await fetch("/api/narrate", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ text, voiceMode: mode }),
+        })
+
+        if (!response.ok) {
+          throw new Error("Narration unavailable")
+        }
+
+        const blob = await response.blob()
+        const audio = new Audio(URL.createObjectURL(blob))
+        audioRef.current = audio
+        audio.onended = finishNarration
+        audio.onerror = finishNarration
+        await audio.play()
+        showToast("Playing ElevenLabs voice brief")
+        return
+      } catch {
+        if (!("speechSynthesis" in window)) {
+          showToast("Voice guide is not supported in this browser")
+          finishNarration()
+          return
+        }
+      }
+
       window.speechSynthesis.cancel()
-    }
-  }, [])
+      const utterance = new SpeechSynthesisUtterance(text)
+      utterance.rate = mode === "operator" ? 1.06 : mode === "archivist" ? 0.88 : 0.96
+      utterance.pitch = mode === "operator" ? 0.98 : mode === "archivist" ? 0.82 : 0.92
+      utterance.volume = 0.85
+      utterance.onend = finishNarration
+      utterance.onerror = finishNarration
+      window.speechSynthesis.speak(utterance)
+      showToast("Using browser voice fallback")
+    },
+    [finishNarration, showToast, soundEnabled, voiceMode],
+  )
+
+  const startBriefing = useCallback(() => {
+    setBriefingMode(true)
+    setActiveCard(1)
+    runProgress()
+    speak(tourLines.overview, voiceMode)
+  }, [runProgress, speak, voiceMode])
+
+  const changeAmbient = (mode: AmbientMode) => {
+    setAmbient(mode)
+    showToast(mode === "off" ? "Ambient layer off" : `${mode[0].toUpperCase()}${mode.slice(1)} ambience selected`)
+  }
 
   return (
-    <main className="min-h-screen bg-background">
-      <Header onStartTour={startTour} />
-      
-      <Hero onReadAloud={speakText} />
-      
-      <ProductShowcase onReadAloud={speakText} />
-      
-      <Features onReadAloud={speakText} />
-      
-      <Testimonials onReadAloud={speakText} />
-      
-      <Footer />
-      
-      {/* Audio Controls */}
-      <AudioController 
-        onSpeakText={speakText}
-        soundEnabled={soundEnabled}
-        setSoundEnabled={setSoundEnabled}
-      />
-      
-      {/* Guided Tour */}
-      <GuidedTour 
-        isActive={tourActive}
-        onClose={closeTour}
-        onSpeak={speakText}
-      />
-      
-      {/* Toast Notifications */}
-      <Toast message={toastMessage} />
+    <main className={`atlas-shell ${briefingMode ? "briefing-mode" : ""}`}>
+      <header className="atlas-nav">
+        <a className="atlas-brand" href="#top" aria-label="Notion Atlas home">
+          <span className="atlas-mark">N</span>
+          <span>Notion Atlas</span>
+        </a>
+        <nav className="atlas-links" aria-label="Primary navigation">
+          <a href="#workspace">Workspace</a>
+          <a href="#features">Features</a>
+          <a href="#voice">Voice</a>
+          <a href="#demo">Demo</a>
+        </nav>
+        <button className="nav-cta" type="button" onClick={startBriefing}>
+          Briefing Mode
+        </button>
+      </header>
+
+      <section className="atlas-hero" id="top">
+        <div className="hero-copy">
+          <p className="kicker hero-label">Notion, if it was a living desk</p>
+          <h1>Your team wiki, docs, and projects as a tactile command desk.</h1>
+          <p className="hero-lede">
+            Same Notion promise: one place for notes, documents, projects, knowledge, and AI. New skin:
+            a high-contrast editorial workspace built for scanning, connecting, and narrating what matters.
+          </p>
+          <div className="hero-actions">
+            <a className="button primary" href="#workspace">
+              Open Workspace
+            </a>
+            <button className="button ghost briefing-trigger" type="button" onClick={startBriefing}>
+              Play Voice Brief
+            </button>
+          </div>
+        </div>
+
+        <div className="workspace-wrap">
+          <div className="page-tabs" aria-hidden="true">
+            <span>Brief</span>
+            <span>Tasks</span>
+            <span>AI</span>
+          </div>
+          <div className="workspace-device" aria-label="Notion Atlas workspace preview">
+            <div className="fold fold-left" />
+            <div className="fold fold-right" />
+            <div className="annotation annotation-top">/ ask AI for the brief</div>
+            <div className="sticky-note">Record this first. Judges see video before code.</div>
+            <div className={`live-cursor target-${cursorTarget}`}>
+              <span />
+              <strong>{["Maya", "Dev", "AI"][cursorTarget]}</strong>
+            </div>
+            <div className="device-topbar">
+              <span>Atlas / Team Home</span>
+              <div className="presence" aria-label="Collaborators online">
+                <span>M</span>
+                <span>D</span>
+                <span>AI</span>
+              </div>
+              <span className="status-pill">Live</span>
+            </div>
+            <div className="device-grid">
+              <aside className="device-sidebar">
+                <span className="sidebar-title">Spaces</span>
+                <button className="sidebar-item active">Team Wiki</button>
+                <button className="sidebar-item">Projects</button>
+                <button className="sidebar-item">Docs</button>
+                <button className="sidebar-item">Meetings</button>
+              </aside>
+              <div className="device-main">
+                <div className="dashboard-header">
+                  <div className="page-header">
+                    <p>Today’s Brief</p>
+                    <h2>Launch Room</h2>
+                  </div>
+                  <div className="task-chips" aria-label="Launch room status chips">
+                    <span>Priority: High</span>
+                    <span>7 blockers</span>
+                    <span>Demo in 30s</span>
+                  </div>
+                </div>
+                <div className="brief-grid">
+                  <article>
+                    <span>Decision</span>
+                    <strong>Ship voice tour first</strong>
+                  </article>
+                  <article>
+                    <span>Owner</span>
+                    <strong>Growth + Design</strong>
+                  </article>
+                  <article>
+                    <span>Risk</span>
+                    <strong>Copy too abstract</strong>
+                  </article>
+                </div>
+                <div className="voice-layer">
+                  <div>
+                    <span>Voice Layer</span>
+                    <strong>{briefingMode ? "Briefing Mode" : "Standby"}</strong>
+                  </div>
+                  <div className={`waveform ${isNarrating ? "playing" : ""}`} aria-hidden="true">
+                    {waveformBars.map((height, index) => (
+                      <i key={index} style={{ height: `${height}%`, animationDelay: `${index * 70}ms` }} />
+                    ))}
+                  </div>
+                </div>
+                <div className="timeline" aria-label="Briefing progress">
+                  <span style={{ width: `${briefProgress}%` }} />
+                </div>
+                <div className="paper-stack">
+                  {workspaceCards.map((card, index) => (
+                    <button
+                      key={card.title}
+                      className={`paper-card card-${index} ${activeCard === index ? "selected" : ""}`}
+                      type="button"
+                      onClick={() => {
+                        setActiveCard(index)
+                        setBriefProgress((current) => Math.min(100, current + 12))
+                      }}
+                    >
+                      <span>{card.label}</span>
+                      <strong>{card.title}</strong>
+                      <small>{card.meta}</small>
+                    </button>
+                  ))}
+                </div>
+                <div className={`ai-summary ${briefingMode ? "visible" : ""}`}>
+                  <span>AI summary generated</span>
+                  <p>{typedSummary || "Waiting for briefing mode..."}</p>
+                </div>
+                <div className={`caption-panel ${briefingMode ? "visible" : ""}`}>
+                  <span>Live transcript</span>
+                  <p>{transcript}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section workspace-section" id="workspace">
+        <div className="section-heading">
+          <p className="kicker">The product stays Notion</p>
+          <h2>Docs, databases, projects, and wiki pages still work as one system.</h2>
+        </div>
+        <div className="showcase-panel">
+          <div className="showcase-copy">
+            <span>{workspaceCards[activeCard].label}</span>
+            <h3>{workspaceCards[activeCard].title}</h3>
+            <p>{workspaceCards[activeCard].body}</p>
+            <button className="text-button" type="button" onClick={() => speak(tourLines.workspace)}>
+              Read workspace note aloud
+            </button>
+          </div>
+          <div className="notebook-preview">
+            <div className="map-pin">linked pages</div>
+            <div className="notebook-line strong" />
+            <div className="notebook-line" />
+            <div className="notebook-line short" />
+            <div className="notebook-table">
+              <span>Task</span>
+              <span>Status</span>
+              <span>Owner</span>
+              <span>Voice tour</span>
+              <span>In review</span>
+              <span>Design</span>
+              <span>Demo video</span>
+              <span>Next</span>
+              <span>Growth</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section feature-section" id="features">
+        <div className="section-heading compact">
+          <p className="kicker">What it supports</p>
+          <h2>Notion’s core jobs, reframed as a desk you can actually read.</h2>
+        </div>
+        <div className="feature-grid">
+          {features.map(([title, body]) => (
+            <article className="feature-card" key={title}>
+              <span>{title}</span>
+              <p>{body}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="voice-section" id="voice">
+        <div className="voice-copy">
+          <p className="kicker">ElevenLabs layer</p>
+          <h2>A voice guide for dense workspaces.</h2>
+          <p>
+            The submission angle: Notion pages can become overwhelming. The audio layer gives every page a
+            narrated brief, guided tour, and ambient focus mode so people can understand a workspace faster.
+            This build is wired to ElevenLabs voice ID <code>ewrYJABAiNSuVLoXECzw</code>.
+          </p>
+        </div>
+        <div className="voice-console">
+          <div className="console-row">
+            <span>Voice Guide</span>
+            <button type="button" onClick={() => setSoundEnabled(!soundEnabled)}>
+              {soundEnabled ? "On" : "Muted"}
+            </button>
+          </div>
+          <div className="voice-mode-row" aria-label="Voice modes">
+            {voiceModes.map((mode) => (
+              <button
+                key={mode.id}
+                type="button"
+                className={voiceMode === mode.id ? "active" : ""}
+                onClick={() => setVoiceMode(mode.id)}
+              >
+                <strong>{mode.label}</strong>
+                <span>{mode.note}</span>
+              </button>
+            ))}
+          </div>
+          <div className={`console-waveform ${isNarrating ? "playing" : ""}`} aria-label="Voice waveform">
+            {waveformBars.map((height, index) => (
+              <i key={index} style={{ height: `${height}%`, animationDelay: `${index * 55}ms` }} />
+            ))}
+          </div>
+          <button type="button" onClick={startBriefing}>
+            Start Briefing Mode
+          </button>
+          <button type="button" onClick={() => speak(tourLines.workspace)}>
+            Summarize workspace
+          </button>
+          <button type="button" onClick={() => speak(tourLines.ai, "operator")}>
+            Explain AI guide
+          </button>
+          <div className="mini-caption">
+            <span>Transcript</span>
+            <p>{transcript}</p>
+          </div>
+          <div className="ambient-row" aria-label="Ambient audio modes">
+            {(["off", "library", "rain", "focus"] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                className={ambient === mode ? "active" : ""}
+                onClick={() => changeAmbient(mode)}
+              >
+                {mode}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="demo-strip" id="demo">
+        <strong>Video hook:</strong>
+        <span>“What if Notion felt less like software and more like a living field desk for your team’s memory?”</span>
+        <button className="button primary" type="button" onClick={startBriefing}>
+          Replay Briefing Mode
+        </button>
+      </section>
+
+      {toast ? <div className="atlas-toast">{toast}</div> : null}
     </main>
   )
 }
