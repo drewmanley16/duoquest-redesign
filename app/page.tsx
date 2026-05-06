@@ -1,94 +1,104 @@
 "use client"
 
-import { ArcadeCabinet } from "@/components/arcade-cabinet"
-import { DungeonSelect } from "@/components/dungeon-select"
-import { ProofBar } from "@/components/proof-bar"
+import { useState, useCallback } from "react"
+import { Header } from "@/components/header"
+import { Hero } from "@/components/hero"
+import { ProductShowcase } from "@/components/product-showcase"
+import { Features } from "@/components/features"
+import { Testimonials } from "@/components/testimonials"
+import { Footer } from "@/components/footer"
+import { AudioController } from "@/components/audio-controller"
+import { GuidedTour } from "@/components/guided-tour"
 import { Toast } from "@/components/toast"
-import { useEffect, useState } from "react"
 
 export default function Home() {
   const [toastMessage, setToastMessage] = useState("")
   const [soundEnabled, setSoundEnabled] = useState(true)
+  const [tourActive, setTourActive] = useState(false)
 
-  const showToast = (message: string) => {
+  const showToast = useCallback((message: string) => {
     setToastMessage(message)
-    setTimeout(() => setToastMessage(""), 2600)
-  }
+    setTimeout(() => setToastMessage(""), 3500)
+  }, [])
 
-  const beep = (freq = 520, type: OscillatorType = "square") => {
-    if (!soundEnabled || typeof window === "undefined") return
-    const AudioContext = window.AudioContext || (window as unknown as { webkitAudioContext: typeof window.AudioContext }).webkitAudioContext
-    if (!AudioContext) return
-    const ctx = new AudioContext()
-    const oscillator = ctx.createOscillator()
-    const gain = ctx.createGain()
-    oscillator.type = type
-    oscillator.frequency.setValueAtTime(freq, ctx.currentTime)
-    oscillator.frequency.exponentialRampToValueAtTime(freq * 0.5, ctx.currentTime + 0.1)
-    gain.gain.setValueAtTime(0.06, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1)
-    oscillator.connect(gain).connect(ctx.destination)
-    oscillator.start()
-    oscillator.stop(ctx.currentTime + 0.12)
-  }
-
-  const confirmBeep = () => {
-    beep(660, "square")
-    setTimeout(() => beep(880, "square"), 80)
-  }
-
-  const speak = (text: string) => {
-    confirmBeep()
-    showToast(text)
-    if (!soundEnabled) return
-    if (!("speechSynthesis" in window)) return
+  const speakText = useCallback((text: string) => {
+    if (!soundEnabled) {
+      showToast("Voice reading is disabled")
+      return
+    }
+    
+    if (!("speechSynthesis" in window)) {
+      showToast("Speech synthesis not supported in this browser")
+      return
+    }
+    
+    // Cancel any ongoing speech
     window.speechSynthesis.cancel()
+    
     const utterance = new SpeechSynthesisUtterance(text)
-    utterance.rate = 1.02
-    utterance.pitch = 1.1
+    utterance.rate = 0.9
+    utterance.pitch = 1.0
+    utterance.volume = 0.8
+    
+    // Try to use a more natural voice if available
+    const voices = window.speechSynthesis.getVoices()
+    const preferredVoice = voices.find(
+      voice => voice.lang.startsWith('en') && voice.name.includes('Natural')
+    ) || voices.find(
+      voice => voice.lang.startsWith('en-GB')
+    ) || voices.find(
+      voice => voice.lang.startsWith('en')
+    )
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice
+    }
+    
     window.speechSynthesis.speak(utterance)
-  }
+    showToast("Reading passage aloud...")
+  }, [soundEnabled, showToast])
 
-  const toggleSound = () => {
-    const newState = !soundEnabled
-    setSoundEnabled(newState)
-    if (!newState && "speechSynthesis" in window) {
+  const startTour = useCallback(() => {
+    setTourActive(true)
+  }, [])
+
+  const closeTour = useCallback(() => {
+    setTourActive(false)
+    // Cancel any speech when closing tour
+    if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel()
     }
-    showToast(newState ? "Interface audio enabled" : "Interface audio disabled")
-    if (newState) beep(440)
-  }
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      showToast("READY PLAYER ONE — Select a quest node")
-    }, 800)
-    return () => clearTimeout(timer)
   }, [])
 
   return (
-    <main className="min-h-screen">
-      <div className="crt-overlay" />
-      <div className="scanline" />
+    <main className="min-h-screen bg-background">
+      <Header onStartTour={startTour} />
       
-      <div className="arcade-hall min-h-screen" style={{
-        background: `
-          radial-gradient(ellipse at 50% 30%, rgba(88, 204, 2, 0.08) 0%, transparent 50%),
-          radial-gradient(ellipse at 20% 80%, rgba(255, 45, 106, 0.06) 0%, transparent 40%),
-          radial-gradient(ellipse at 80% 70%, rgba(28, 176, 246, 0.06) 0%, transparent 40%),
-          linear-gradient(180deg, #0a0a12 0%, #0f0f1a 50%, #0a0a12 100%)
-        `
-      }}>
-        <ArcadeCabinet 
-          speak={speak} 
-          beep={beep}
-          soundEnabled={soundEnabled}
-          toggleSound={toggleSound}
-        />
-        <DungeonSelect />
-        <ProofBar />
-      </div>
+      <Hero onReadAloud={speakText} />
       
+      <ProductShowcase onReadAloud={speakText} />
+      
+      <Features onReadAloud={speakText} />
+      
+      <Testimonials onReadAloud={speakText} />
+      
+      <Footer />
+      
+      {/* Audio Controls */}
+      <AudioController 
+        onSpeakText={speakText}
+        soundEnabled={soundEnabled}
+        setSoundEnabled={setSoundEnabled}
+      />
+      
+      {/* Guided Tour */}
+      <GuidedTour 
+        isActive={tourActive}
+        onClose={closeTour}
+        onSpeak={speakText}
+      />
+      
+      {/* Toast Notifications */}
       <Toast message={toastMessage} />
     </main>
   )
