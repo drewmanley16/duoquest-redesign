@@ -4,23 +4,23 @@ import "./globals.css"
 
 const cinzel = Cinzel({ 
   subsets: ['latin'],
-  variable: '--font-cinzel',
   display: 'swap',
+  variable: '--font-cinzel',
 })
 
 const crimsonText = Crimson_Text({ 
   subsets: ['latin'],
   weight: ['400', '600', '700'],
   style: ['normal', 'italic'],
-  variable: '--font-crimson',
   display: 'swap',
+  variable: '--font-crimson',
 })
 
 const imFellEnglish = IM_Fell_English({
   subsets: ['latin'],
   weight: '400',
-  variable: '--font-fell',
   display: 'swap',
+  variable: '--font-fell',
 })
 
 export const metadata: Metadata = {
@@ -40,8 +40,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${cinzel.variable} ${crimsonText.variable} ${imFellEnglish.variable} bg-background`}>
-      <body className="font-sans antialiased">{children}</body>
+    <html 
+      lang="en" 
+      className={`${cinzel.variable} ${crimsonText.variable} ${imFellEnglish.variable} bg-parchment`}
+    >
+      <body className="font-sans antialiased min-h-screen bg-parchment text-ink">
+        {children}
+      </body>
     </html>
   )
 }
