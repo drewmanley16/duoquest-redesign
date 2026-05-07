@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 type AmbientMode = "off" | "library" | "rain" | "focus"
 type VoiceMode = "editor" | "archivist" | "operator"
+type AtlasView = "brief" | "database" | "graph" | "automations" | "integrations" | "voice"
 
 const tourLines = {
   overview:
@@ -87,6 +88,51 @@ const realityRows = [
 
 const integrationSignals = ["Figma", "GitHub", "Slack", "Jira", "Amplitude", "Calendar", "Mail", "Forms"]
 
+const atlasViews: Array<{ id: AtlasView; label: string; title: string; narration: string }> = [
+  {
+    id: "brief",
+    label: "Brief",
+    title: "Launch intelligence",
+    narration:
+      "Brief view condenses the workspace into decisions, risks, owners, active docs, project status, and the next action.",
+  },
+  {
+    id: "database",
+    label: "Database",
+    title: "Live project database",
+    narration:
+      "Database view shows how Notion Atlas keeps tasks, status, owners, due dates, priority, and connected docs in one readable ledger.",
+  },
+  {
+    id: "graph",
+    label: "Graph",
+    title: "Knowledge graph",
+    narration:
+      "Graph view reveals the hidden links between docs, wiki pages, project plans, meeting notes, AI summaries, and external tools.",
+  },
+  {
+    id: "automations",
+    label: "Automations",
+    title: "Workflow relay",
+    narration:
+      "Automation view turns Notion actions into a visible relay: forms create tasks, GitHub updates status, AI drafts summaries, and Slack notifies the team.",
+  },
+  {
+    id: "integrations",
+    label: "Integrations",
+    title: "Connected signals",
+    narration:
+      "Integrations view pulls Figma, GitHub, Slack, Jira, Amplitude, Calendar, Mail, and Forms into the same operating desk.",
+  },
+  {
+    id: "voice",
+    label: "Voice",
+    title: "Narrated workspace",
+    narration:
+      "Voice view makes the ElevenLabs layer obvious with modes for Editor, Archivist, and Operator, plus live captions and waveforms.",
+  },
+]
+
 export default function Home() {
   const [activeCard, setActiveCard] = useState(0)
   const [soundEnabled, setSoundEnabled] = useState(true)
@@ -99,6 +145,7 @@ export default function Home() {
   const [transcript, setTranscript] = useState("Ready for voice brief.")
   const [typedSummary, setTypedSummary] = useState("")
   const [cursorTarget, setCursorTarget] = useState(0)
+  const [activeAtlasView, setActiveAtlasView] = useState<AtlasView>("brief")
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const progressTimerRef = useRef<number | null>(null)
 
@@ -382,6 +429,153 @@ export default function Home() {
             <small>{stat.source}</small>
           </article>
         ))}
+      </section>
+
+      <section className="section atlas-lab-section" id="atlas-lab">
+        <div className="section-heading">
+          <p className="kicker">Multi-view Atlas</p>
+          <h2>Six tabs. One workspace. Way more demo surface.</h2>
+          <p>
+            This makes the redesign feel like an actual product shell: switch between a brief, database, knowledge
+            graph, automation relay, connected signals, and the ElevenLabs voice layer.
+          </p>
+        </div>
+        <div className="atlas-lab">
+          <div className="atlas-tabbar" role="tablist" aria-label="Atlas views">
+            {atlasViews.map((view) => (
+              <button
+                key={view.id}
+                type="button"
+                className={activeAtlasView === view.id ? "active" : ""}
+                onClick={() => {
+                  setActiveAtlasView(view.id)
+                  setTranscript(view.narration)
+                  setBriefProgress((current) => Math.min(100, current + 8))
+                }}
+              >
+                {view.label}
+              </button>
+            ))}
+          </div>
+          <div className="atlas-panel">
+            <div className="atlas-panel-header">
+              <span>{atlasViews.find((view) => view.id === activeAtlasView)?.label}</span>
+              <h3>{atlasViews.find((view) => view.id === activeAtlasView)?.title}</h3>
+              <button
+                className="text-button"
+                type="button"
+                onClick={() =>
+                  speak(atlasViews.find((view) => view.id === activeAtlasView)?.narration || tourLines.overview)
+                }
+              >
+                Narrate this tab
+              </button>
+            </div>
+
+            {activeAtlasView === "brief" ? (
+              <div className="brief-board">
+                <article>
+                  <span>Decision</span>
+                  <strong>Keep real product facts visible</strong>
+                </article>
+                <article>
+                  <span>Risk</span>
+                  <strong>Demo needs one memorable click</strong>
+                </article>
+                <article>
+                  <span>Next</span>
+                  <strong>Record Briefing Mode first</strong>
+                </article>
+                <article>
+                  <span>Metric</span>
+                  <strong>50+ content types</strong>
+                </article>
+              </div>
+            ) : null}
+
+            {activeAtlasView === "database" ? (
+              <div className="database-view">
+                {[
+                  ["Voice tour", "In review", "Design", "High"],
+                  ["Reality layer", "Shipped", "Product", "High"],
+                  ["Demo video", "Next", "Growth", "Critical"],
+                  ["ElevenLabs key", "Waiting", "Engineering", "Medium"],
+                ].map((row) => (
+                  <div className="db-row" key={row.join("-")}>
+                    {row.map((cell) => (
+                      <span key={cell}>{cell}</span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {activeAtlasView === "graph" ? (
+              <div className="graph-view" aria-label="Knowledge graph visualization">
+                {["Docs", "Wiki", "Projects", "AI", "Meeting notes", "GitHub", "Figma"].map((node, index) => (
+                  <span key={node} className={`graph-node node-${index}`}>
+                    {node}
+                  </span>
+                ))}
+                <i />
+                <i />
+                <i />
+                <i />
+              </div>
+            ) : null}
+
+            {activeAtlasView === "automations" ? (
+              <div className="automation-view">
+                {[
+                  ["Form submitted", "Create project task"],
+                  ["GitHub PR merged", "Update launch status"],
+                  ["Meeting ends", "Generate AI summary"],
+                  ["Risk marked high", "Send Slack brief"],
+                ].map(([from, to]) => (
+                  <article key={from}>
+                    <span>{from}</span>
+                    <strong>{to}</strong>
+                  </article>
+                ))}
+              </div>
+            ) : null}
+
+            {activeAtlasView === "integrations" ? (
+              <div className="integration-matrix">
+                {integrationSignals.map((signal) => (
+                  <span key={signal}>{signal}</span>
+                ))}
+              </div>
+            ) : null}
+
+            {activeAtlasView === "voice" ? (
+              <div className="voice-tab-view">
+                <div className={`console-waveform ${isNarrating ? "playing" : ""}`} aria-label="Voice waveform">
+                  {waveformBars.map((height, index) => (
+                    <i key={index} style={{ height: `${height}%`, animationDelay: `${index * 55}ms` }} />
+                  ))}
+                </div>
+                <div className="voice-mode-row">
+                  {voiceModes.map((mode) => (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      className={voiceMode === mode.id ? "active" : ""}
+                      onClick={() => setVoiceMode(mode.id)}
+                    >
+                      <strong>{mode.label}</strong>
+                      <span>{mode.note}</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="mini-caption">
+                  <span>Live caption</span>
+                  <p>{transcript}</p>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
       </section>
 
       <section className="section workspace-section" id="workspace">
