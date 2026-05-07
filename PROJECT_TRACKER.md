@@ -20,7 +20,7 @@ The visual style is intentionally different:
 - Sharp borders, grid paper, stacked cards, and notebook/table motifs
 - Voice guide built into the product story
 
-## Current Demo
+## Current Build
 
 Run locally:
 
@@ -65,7 +65,7 @@ Verified on May 6, 2026:
   - Ambient mode selector
   - Editor, Archivist, and Operator voice modes
 - Added ElevenLabs `/api/narrate` route using default voice ID `ewrYJABAiNSuVLoXECzw`.
-- Added browser speech synthesis fallback for demo narration when `ELEVENLABS_API_KEY` is not configured.
+- Narration now requires ElevenLabs API audio. There is no browser voice fallback.
 - Added Briefing Mode as the core memorable interaction:
   - Background shifts into active state.
   - Workspace shadow turns blue.
@@ -104,12 +104,9 @@ Verified on May 6, 2026:
 - `next.config.js` — Next config with local output tracing root.
 - `.gitignore` — excludes generated build/dependency files.
 
-## Interactive Demo Moments
+## Interactive Product Moments
 
-Use these in the video/demo:
-
-1. First frame: show the headline and workspace preview.
-2. Click **Play Voice Brief** to trigger Briefing Mode.
+1. Click **Play Voice Brief** to trigger Briefing Mode.
 3. Show the waveform, blue active workspace, transcript, progress bar, and generated AI summary.
 4. Click the Docs / Projects / Wiki cards inside the workspace preview.
 5. Scroll to the workspace section and click **Read workspace note aloud**.
@@ -126,7 +123,7 @@ Use these in the video/demo:
 - Decide whether the repo should keep `pnpm-lock.yaml` or switch fully to npm.
 - Commit the redesign cleanup.
 - Deploy to Vercel.
-- Record demo video around the first viewport and voice guide.
+- Confirm `ELEVENLABS_API_KEY` exists in local and Vercel environments.
 
 ## Suggested Next Steps
 
@@ -134,4 +131,4 @@ Use these in the video/demo:
 2. Rewrite README and submission copy for Notion Atlas.
 3. Commit and push this cleaner redesign.
 4. Deploy to Vercel.
-5. Record the submission video.
+5. Verify the deployed voice flow with the custom ElevenLabs voice.

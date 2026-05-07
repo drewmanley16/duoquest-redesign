@@ -92,15 +92,7 @@ const liveSignals = ["GitHub PR merged", "Slack thread linked", "AI summary upda
 const agentSuggestions = ["3 docs mention launch risk", "GitHub signal changed project status", "Create a briefing?"]
 const launchDate = new Date("2026-05-07T17:00:00-07:00")
 
-const demoBeats = [
-  "Play brief",
-  "Switch Graph",
-  "Switch Automations",
-  "Narrate Reality Layer",
-  "Show Voice modes",
-]
-
-const launchChecklist = ["Hook recorded", "Voice brief tested", "Reality layer shown", "Social post drafted"]
+const launchChecklist = ["Workspace brief ready", "Custom voice connected", "Reality data loaded", "Launch room synced"]
 const activityFeed = [
   { time: "11:02", source: "GitHub", event: "PR merged into main" },
   { time: "11:04", source: "Slack", event: "Launch thread linked" },
@@ -168,7 +160,6 @@ export default function Home() {
   const [activeAtlasView, setActiveAtlasView] = useState<AtlasView>("brief")
   const [compareSplit, setCompareSplit] = useState(52)
   const [paletteOpen, setPaletteOpen] = useState(false)
-  const [demoPanelOpen, setDemoPanelOpen] = useState(false)
   const [agentIndex, setAgentIndex] = useState(0)
   const [signalIndex, setSignalIndex] = useState(0)
   const [now, setNow] = useState(() => new Date())
@@ -234,7 +225,6 @@ export default function Home() {
 
       if (event.key === "Escape") {
         setPaletteOpen(false)
-        setDemoPanelOpen(false)
       }
     }
 
@@ -307,22 +297,9 @@ export default function Home() {
         showToast("Playing ElevenLabs voice brief")
         return
       } catch {
-        if (!("speechSynthesis" in window)) {
-          showToast("Voice guide is not supported in this browser")
-          finishNarration()
-          return
-        }
+        showToast("ElevenLabs API key required for custom voice")
+        finishNarration()
       }
-
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.rate = mode === "operator" ? 1.06 : mode === "archivist" ? 0.88 : 0.96
-      utterance.pitch = mode === "operator" ? 0.98 : mode === "archivist" ? 0.82 : 0.92
-      utterance.volume = 0.85
-      utterance.onend = finishNarration
-      utterance.onerror = finishNarration
-      window.speechSynthesis.speak(utterance)
-      showToast("Using browser voice fallback")
     },
     [finishNarration, showToast, soundEnabled, voiceMode],
   )
@@ -341,32 +318,6 @@ export default function Home() {
 
   const goToSection = (id: string) => {
     document.querySelector(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
-  }
-
-  const runGuidedTour = () => {
-    const steps: Array<() => void> = [
-      () => goToSection("#top"),
-      () => startBriefing(),
-      () => {
-        goToSection("#atlas-lab")
-        setActiveAtlasView("graph")
-      },
-      () => {
-        setActiveAtlasView("automations")
-      },
-      () => {
-        goToSection("#reality")
-        speak(tourLines.data, "archivist")
-      },
-      () => {
-        goToSection("#voice")
-        setActiveAtlasView("voice")
-      },
-    ]
-
-    steps.forEach((step, index) => {
-      window.setTimeout(step, index * 1700)
-    })
   }
 
   const commandActions = [
@@ -421,7 +372,6 @@ export default function Home() {
           <a href="#workspace">Workspace</a>
           <a href="#features">Features</a>
           <a href="#voice">Voice</a>
-          <a href="#demo">Demo</a>
         </nav>
         <div className="nav-actions">
           <button className="nav-cta subtle" type="button" onClick={() => setPaletteOpen(true)}>
@@ -448,9 +398,6 @@ export default function Home() {
             <button className="button ghost briefing-trigger" type="button" onClick={startBriefing}>
               Play Voice Brief
             </button>
-            <button className="button ghost" type="button" onClick={() => setDemoPanelOpen(true)}>
-              Demo Script
-            </button>
           </div>
         </div>
 
@@ -464,7 +411,7 @@ export default function Home() {
             <div className="fold fold-left" />
             <div className="fold fold-right" />
             <div className="annotation annotation-top">/ ask AI for the brief</div>
-            <div className="sticky-note">Record this first. Judges see video before code.</div>
+            <div className="sticky-note">Custom ElevenLabs voice powers every spoken brief.</div>
             <div className={`live-cursor target-${cursorTarget}`}>
               <span />
               <strong>{["Maya", "Dev", "AI"][cursorTarget]}</strong>
@@ -651,7 +598,7 @@ export default function Home() {
       <section className="section atlas-lab-section" id="atlas-lab">
         <div className="section-heading">
           <p className="kicker">Multi-view Atlas</p>
-          <h2>Six tabs. One workspace. Way more demo surface.</h2>
+          <h2>Six tabs. One workspace. A full operating surface.</h2>
           <p>
             This makes the redesign feel like an actual product shell: switch between a brief, database, knowledge
             graph, automation relay, connected signals, and the ElevenLabs voice layer.
@@ -697,11 +644,11 @@ export default function Home() {
                 </article>
                 <article>
                   <span>Risk</span>
-                  <strong>Demo needs one memorable click</strong>
+                  <strong>Briefing Mode reveals the key risks</strong>
                 </article>
                 <article>
                   <span>Next</span>
-                  <strong>Record Briefing Mode first</strong>
+                  <strong>Custom voice brief is ready</strong>
                 </article>
                 <article>
                   <span>Metric</span>
@@ -713,10 +660,10 @@ export default function Home() {
             {activeAtlasView === "database" ? (
               <div className="database-view">
                 {[
-                  ["Voice tour", "In review", "Design", "High"],
+                  ["Voice layer", "In review", "Design", "High"],
                   ["Reality layer", "Shipped", "Product", "High"],
-                  ["Demo video", "Next", "Growth", "Critical"],
-                  ["ElevenLabs key", "Waiting", "Engineering", "Medium"],
+                  ["Custom voice", "Ready", "Product", "Critical"],
+                  ["ElevenLabs API", "Connected", "Engineering", "High"],
                 ].map((row) => (
                   <div className="db-row" key={row.join("-")}>
                     {row.map((cell) => (
@@ -818,12 +765,12 @@ export default function Home() {
               <span>Task</span>
               <span>Status</span>
               <span>Owner</span>
-              <span>Voice tour</span>
+              <span>Voice layer</span>
               <span>In review</span>
               <span>Design</span>
-              <span>Demo video</span>
-              <span>Next</span>
-              <span>Growth</span>
+              <span>Custom voice</span>
+              <span>Ready</span>
+              <span>Product</span>
             </div>
           </div>
         </div>
@@ -877,8 +824,8 @@ export default function Home() {
           <p className="kicker">ElevenLabs layer</p>
           <h2>A voice guide for dense workspaces.</h2>
           <p>
-            The submission angle: Notion pages can become overwhelming. The audio layer gives every page a
-            narrated brief, guided tour, and ambient focus mode so people can understand a workspace faster.
+            Notion pages can become overwhelming. The audio layer gives every page a
+            narrated brief through the custom ElevenLabs voice so people can understand a workspace faster.
             This build is wired to ElevenLabs voice ID <code>ewrYJABAiNSuVLoXECzw</code>.
           </p>
         </div>
@@ -938,17 +885,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="demo-strip" id="demo">
-        <strong>Video hook:</strong>
-        <span>“What if Notion felt less like software and more like a living field desk for your team’s memory?”</span>
-        <button className="button primary" type="button" onClick={startBriefing}>
-          Replay Briefing Mode
-        </button>
-        <button className="button primary" type="button" onClick={runGuidedTour}>
-          Run Guided Tour
-        </button>
-      </section>
-
       <aside className="agent-card" aria-label="Atlas Agent suggestions">
         <div>
           <span>Atlas Agent</span>
@@ -984,23 +920,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-      ) : null}
-
-      {demoPanelOpen ? (
-        <aside className="demo-panel">
-          <div className="demo-panel-head">
-            <span>Demo Mode</span>
-            <button type="button" onClick={() => setDemoPanelOpen(false)}>Close</button>
-          </div>
-          <ol>
-            {demoBeats.map((beat) => (
-              <li key={beat}>{beat}</li>
-            ))}
-          </ol>
-          <button className="button primary" type="button" onClick={runGuidedTour}>
-            Auto-run tour
-          </button>
-        </aside>
       ) : null}
 
       {toast ? <div className="atlas-toast">{toast}</div> : null}

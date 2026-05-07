@@ -1578,23 +1578,6 @@ h3 {
   background: #d7f06b;
 }
 
-.demo-strip {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.2rem clamp(1rem, 5vw, 5rem);
-  border-top: 1px solid #18130f;
-  background: #a43d2f;
-  color: #fffaf0;
-}
-
-.demo-strip .button {
-  border-color: #fffaf0;
-  background: #fffaf0;
-  color: #18130f;
-}
-
 .atlas-toast {
   position: fixed;
   right: 1rem;
@@ -1625,8 +1608,7 @@ h3 {
 }
 
 .agent-card span,
-.live-feed span,
-.demo-panel-head span {
+.live-feed span {
   display: block;
   color: #a43d2f;
   font-size: 0.66rem;
@@ -1642,7 +1624,6 @@ h3 {
 }
 
 .agent-card button,
-.demo-panel button,
 .command-palette button {
   border: 1px solid #18130f;
   background: #d7f06b;
@@ -1720,42 +1701,6 @@ h3 {
 .command-palette button span {
   color: rgba(24, 19, 15, 0.62);
   font-weight: 500;
-}
-
-.demo-panel {
-  position: fixed;
-  right: 1rem;
-  top: 5rem;
-  z-index: 50;
-  width: min(22rem, calc(100vw - 2rem));
-  border: 1px solid #18130f;
-  background: #fffaf0;
-  box-shadow: 8px 8px 0 #18130f;
-  padding: 1rem;
-}
-
-.demo-panel-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  border-bottom: 1px solid rgba(24, 19, 15, 0.2);
-  padding-bottom: 0.8rem;
-}
-
-.demo-panel-head button {
-  background: #f7f1e5;
-  padding: 0.35rem 0.5rem;
-}
-
-.demo-panel ol {
-  margin: 1rem 0;
-  padding-left: 1.35rem;
-}
-
-.demo-panel li {
-  margin-bottom: 0.55rem;
-  font-weight: 740;
 }
 
 @media (max-width: 940px) {
@@ -1844,8 +1789,7 @@ h3 {
   .proof-ledger,
   .reality-grid,
   .brief-board,
-  .integration-matrix,
-  .demo-strip {
+  .integration-matrix {
     grid-template-columns: 1fr;
   }
 

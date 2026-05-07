@@ -56,25 +56,21 @@ Optional voice override:
 ELEVENLABS_VOICE_ID=ewrYJABAiNSuVLoXECzw ELEVENLABS_API_KEY=your_key npm run dev
 ```
 
-If `ELEVENLABS_API_KEY` is not configured, the UI falls back to browser speech synthesis so the demo still works.
+If `ELEVENLABS_API_KEY` is not configured, narration is disabled and the UI asks for the ElevenLabs API key. There is no browser voice fallback, so spoken briefs always use the configured ElevenLabs voice.
 
-## Demo Beats
+## Judge Flow
 
-1. First frame: Notion Atlas hero and workspace preview.
-2. Click **Play Voice Brief**.
-3. Click Docs / Projects / Wiki cards in the workspace preview.
-4. Scroll to the workspace section and click **Read workspace note aloud**.
-5. Scroll to the ElevenLabs section.
-6. Click **Read site overview**, **Summarize workspace**, and **Explain AI guide**.
-7. Switch voice modes: Editor, Archivist, Operator.
-8. Scroll to the Reality Layer and click **Narrate Reality Layer**.
-9. Show ambient modes: off, library, rain, focus.
+1. Open the workspace and click **Play Voice Brief**.
+2. Briefing Mode activates the waveform, live transcript, progress bar, highlighted workspace cards, and typed AI summary.
+3. Switch between Brief, Database, Graph, Automations, Integrations, and Voice tabs to inspect the full Notion Atlas operating surface.
+4. Use the command palette with `/brief workspace`, `/show graph`, `/read with editor voice`, and `/summarize launch room`.
+5. Switch voice modes: Editor, Archivist, and Operator. Each mode calls the ElevenLabs route with tuned voice settings.
 
 ## Submission Angle
 
 Notion pages can become dense fast. Notion Atlas keeps the all-in-one workspace idea, but reframes it as a tactile command desk where important pages can brief you out loud. The ElevenLabs layer makes the redesign more than visual: it turns a workspace into something you can listen to, skim, and understand faster.
 
-## Video Hook
+## Core Line
 
 ```text
 What if Notion felt less like software and more like a living field desk for your team’s memory?
