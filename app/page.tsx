@@ -7,11 +7,13 @@ type VoiceMode = "editor" | "archivist" | "operator"
 
 const tourLines = {
   overview:
-    "Briefing mode active. Notion Atlas turns docs, projects, wiki pages, and AI into a living paper desk. The launch room shows decisions, owners, risks, tasks, and the next move in one readable surface.",
+    "Briefing mode active. Notion Atlas turns docs, projects, wiki pages, and AI into a living paper desk. The real Notion product spans docs, wikis, projects, databases, charts, automations, forms, integrations, AI search, meeting notes, and thousands of templates.",
   workspace:
     "The canvas keeps Notion recognizable: documents, tables, project boards, and wiki pages all live together, but the interface feels like a field desk for serious ideas.",
   ai:
-    "The voice layer summarizes your workspace, reads page briefs aloud, and helps you move through dense knowledge without staring at every block.",
+    "The voice layer summarizes your workspace, reads page briefs aloud, and helps you move through dense knowledge without staring at every block. In production this can narrate project status, database changes, AI summaries, and meeting notes.",
+  data:
+    "Reality layer. Notion officially highlights more than fifty content types in docs, configurable project databases with timelines and charts, AI meeting notes and enterprise search, and integrations with tools like Figma, Slack, GitHub, Jira, and Amplitude.",
 }
 
 const voiceModes: Array<{ id: VoiceMode; label: string; note: string }> = [
@@ -42,16 +44,48 @@ const workspaceCards = [
 ]
 
 const features = [
-  ["Write", "Docs, notes, specs, briefs, and meeting pages with a calm editor."],
-  ["Organize", "Databases, boards, calendars, and linked pages for every workflow."],
-  ["Collaborate", "Comments, mentions, shared spaces, and live team context."],
-  ["Ask AI", "Summaries, drafts, answers, and workspace help when the page gets dense."],
+  ["Docs", "50+ content types: code snippets, toggles, embeds, tables of contents, charts, and more."],
+  ["Projects", "Databases, timelines, progress bars, dependencies, tasks, subtasks, automations, and forms."],
+  ["AI", "Meeting notes, enterprise search, AI autofill, research, model picker, translation, and doc drafting."],
+  ["Connections", "Figma, GitHub, Slack, Jira, Amplitude, and more keep project context in the workspace."],
 ]
 
 const aiSummary =
-  "AI summary generated: ship the voice brief first, tighten homepage copy, record a 30 second walkthrough, and keep Notion primitives visible."
+  "AI summary generated: Notion Atlas keeps real product facts visible: docs, wikis, projects, charts, forms, automations, integrations, AI search, meeting notes, and templates."
 
 const waveformBars = [32, 62, 46, 82, 38, 70, 54, 92, 44, 68, 36, 76, 52, 88, 42, 64]
+
+const proofStats = [
+  { value: "50+", label: "doc content types", source: "Notion Docs" },
+  { value: "6.6k+", label: "top docs templates", source: "Marketplace" },
+  { value: "4k+", label: "roadmap & calendar templates", source: "Marketplace" },
+  { value: "100-1000+", label: "team-size trust band", source: "Projects page" },
+]
+
+const realityRows = [
+  {
+    label: "Docs",
+    evidence: "Code snippets, toggles, embeds, table of contents, charts, and 50+ more content types.",
+    atlas: "Voice can read complex docs as short executive briefs.",
+  },
+  {
+    label: "Projects",
+    evidence: "Databases, timelines, charts, priority labels, status tags, automations, filters, forms, and permissions.",
+    atlas: "Briefing Mode turns project data into a launch-room readout.",
+  },
+  {
+    label: "AI",
+    evidence: "AI meeting notes, enterprise search, connected app answers, research mode, database autofill, and model picker.",
+    atlas: "The workspace can narrate summaries instead of making users hunt through pages.",
+  },
+  {
+    label: "Connections",
+    evidence: "Figma, Slack, GitHub, Jira, and Amplitude are official Notion connection examples.",
+    atlas: "External signals become source cards inside the paper OS.",
+  },
+]
+
+const integrationSignals = ["Figma", "GitHub", "Slack", "Jira", "Amplitude", "Calendar", "Mail", "Forms"]
 
 export default function Home() {
   const [activeCard, setActiveCard] = useState(0)
@@ -271,24 +305,29 @@ export default function Home() {
                     <h2>Launch Room</h2>
                   </div>
                   <div className="task-chips" aria-label="Launch room status chips">
-                    <span>Priority: High</span>
-                    <span>7 blockers</span>
-                    <span>Demo in 30s</span>
+                    <span>50+ blocks</span>
+                    <span>6.6k templates</span>
+                    <span>AI brief ready</span>
                   </div>
                 </div>
                 <div className="brief-grid">
                   <article>
-                    <span>Decision</span>
-                    <strong>Ship voice tour first</strong>
+                    <span>Docs</span>
+                    <strong>50+ content types</strong>
                   </article>
                   <article>
-                    <span>Owner</span>
-                    <strong>Growth + Design</strong>
+                    <span>Projects</span>
+                    <strong>Timelines + charts</strong>
                   </article>
                   <article>
-                    <span>Risk</span>
-                    <strong>Copy too abstract</strong>
+                    <span>AI</span>
+                    <strong>Search + meeting notes</strong>
                   </article>
+                </div>
+                <div className="signal-strip" aria-label="Connected workspace signals">
+                  {integrationSignals.slice(0, 5).map((signal) => (
+                    <span key={signal}>{signal}</span>
+                  ))}
                 </div>
                 <div className="voice-layer">
                   <div>
@@ -333,6 +372,16 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </section>
+
+      <section className="proof-ledger" aria-label="Official Notion product proof points">
+        {proofStats.map((stat) => (
+          <article key={stat.label}>
+            <strong>{stat.value}</strong>
+            <span>{stat.label}</span>
+            <small>{stat.source}</small>
+          </article>
+        ))}
       </section>
 
       <section className="section workspace-section" id="workspace">
@@ -384,6 +433,34 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section reality-section" id="reality">
+        <div className="section-heading">
+          <p className="kicker">Reality layer</p>
+          <h2>Real Notion primitives, redesigned into something judges can remember.</h2>
+          <p>
+            This is the part that makes the redesign feel grounded: the page does not invent a fake product.
+            It remixes the actual Notion ecosystem into a voice-guided operating desk.
+          </p>
+        </div>
+        <div className="reality-grid">
+          {realityRows.map((row) => (
+            <article className="reality-card" key={row.label}>
+              <span>{row.label}</span>
+              <p>{row.evidence}</p>
+              <strong>{row.atlas}</strong>
+            </article>
+          ))}
+        </div>
+        <div className="integration-tape" aria-label="Notion ecosystem signals">
+          {integrationSignals.map((signal) => (
+            <span key={signal}>{signal}</span>
+          ))}
+        </div>
+        <button className="button primary" type="button" onClick={() => speak(tourLines.data, "archivist")}>
+          Narrate Reality Layer
+        </button>
+      </section>
+
       <section className="voice-section" id="voice">
         <div className="voice-copy">
           <p className="kicker">ElevenLabs layer</p>
@@ -427,6 +504,9 @@ export default function Home() {
           </button>
           <button type="button" onClick={() => speak(tourLines.ai, "operator")}>
             Explain AI guide
+          </button>
+          <button type="button" onClick={() => speak(tourLines.data, "archivist")}>
+            Read real Notion data
           </button>
           <div className="mini-caption">
             <span>Transcript</span>

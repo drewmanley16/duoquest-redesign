@@ -84,6 +84,13 @@ Verified on May 6, 2026:
   - Sticky-note callout.
   - Page tabs protruding from the workspace.
   - Animated collaborator cursor and presence badges.
+- Added a real Notion data/proof layer:
+  - 50+ docs content types.
+  - Template marketplace counts.
+  - Project management primitives like timelines, charts, automations, forms, tasks, subtasks, dependencies, and progress bars.
+  - AI features such as meeting notes, enterprise search, database autofill, research, translation, and model picker.
+  - Official integration examples including Figma, GitHub, Slack, Jira, and Amplitude.
+- Added a Reality Layer section that connects official Notion product facts to the Notion Atlas redesign idea.
 - Removed unused old component files from the previous version.
 - Added `.gitignore` for generated files.
 - Updated package name to `notion-atlas-redesign`.
@@ -109,7 +116,8 @@ Use these in the video/demo:
 6. Scroll to the ElevenLabs section.
 7. Switch voice modes: Editor, Archivist, Operator.
 8. Click **Start Briefing Mode**, **Summarize workspace**, and **Explain AI guide**.
-9. Toggle ambient modes: off, library, rain, focus.
+9. Scroll to **Reality layer** and click **Narrate Reality Layer**.
+10. Toggle ambient modes: off, library, rain, focus.
 
 ## Needs Cleanup
 

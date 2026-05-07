@@ -4,6 +4,14 @@ Notion reimagined as a **living paper operating system** for the ElevenHacks "Re
 
 The content stays recognizably Notion: docs, projects, wiki pages, databases, collaboration, and AI. The visual style changes completely: tactile paper grid, sharp ink borders, editorial type, red annotations, blue progress, stacked workspace cards, and a voice guide for dense workspaces.
 
+## Real Notion Signals Used
+
+- Docs support 50+ content types such as code snippets, toggles, embeds, tables of contents, and charts.
+- Projects include databases, timelines, charts, priority labels, status tags, automations, forms, filters, tasks, subtasks, dependencies, and progress bars.
+- Notion AI includes meeting notes, enterprise search, connected app answers, research, translation, database autofill, and model selection.
+- Official connection examples include Figma, GitHub, Slack, Jira, and Amplitude.
+- Marketplace pages show thousands of templates across docs, project management, and wiki use cases.
+
 ## Run
 
 ```bash
@@ -58,7 +66,9 @@ If `ELEVENLABS_API_KEY` is not configured, the UI falls back to browser speech s
 4. Scroll to the workspace section and click **Read workspace note aloud**.
 5. Scroll to the ElevenLabs section.
 6. Click **Read site overview**, **Summarize workspace**, and **Explain AI guide**.
-7. Show ambient modes: off, library, rain, focus.
+7. Switch voice modes: Editor, Archivist, Operator.
+8. Scroll to the Reality Layer and click **Narrate Reality Layer**.
+9. Show ambient modes: off, library, rain, focus.
 
 ## Submission Angle
 
