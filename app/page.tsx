@@ -162,7 +162,7 @@ export default function Home() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [agentIndex, setAgentIndex] = useState(0)
   const [signalIndex, setSignalIndex] = useState(0)
-  const [now, setNow] = useState(() => new Date())
+  const [now, setNow] = useState<Date | null>(null)
   const [launchPhase, setLaunchPhase] = useState<LaunchPhase>("Review")
   const [checkedItems, setCheckedItems] = useState<boolean[]>([true, false, false, false])
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -200,6 +200,7 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
+    setNow(new Date())
     const timer = window.setInterval(() => setNow(new Date()), 1000)
     return () => window.clearInterval(timer)
   }, [])
@@ -351,11 +352,17 @@ export default function Home() {
     },
   ]
 
-  const remainingMs = Math.max(0, launchDate.getTime() - now.getTime())
+  const remainingMs = now ? Math.max(0, launchDate.getTime() - now.getTime()) : 0
   const remainingHours = Math.floor(remainingMs / 3_600_000)
   const remainingMinutes = Math.floor((remainingMs % 3_600_000) / 60_000)
   const remainingSeconds = Math.floor((remainingMs % 60_000) / 1000)
   const completedCount = checkedItems.filter(Boolean).length
+  const clockDate = now
+    ? now.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    : "May 7"
+  const clockTime = now
+    ? now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+    : "--:--"
 
   const cyclePhase = () => {
     const phases: LaunchPhase[] = ["Draft", "Review", "Launch"]
@@ -421,8 +428,7 @@ export default function Home() {
           <div className="device-topbar">
               <span>Atlas / Team Home</span>
               <span className="clock-stamp">
-                {now.toLocaleDateString(undefined, { month: "short", day: "numeric" })} ·{" "}
-                {now.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+                {clockDate} · {clockTime}
               </span>
               <div className="presence" aria-label="Collaborators online">
                 <span>M</span>
@@ -454,7 +460,7 @@ export default function Home() {
                 <div className="launch-ribbon">
                   <span>Submission closes May 7, 2026 · 5:00 PM PT</span>
                   <strong>
-                    T-{remainingHours}h {remainingMinutes}m {remainingSeconds}s
+                    {now ? `T-${remainingHours}h ${remainingMinutes}m ${remainingSeconds}s` : "T--h --m --s"}
                   </strong>
                 </div>
                 <div className="brief-grid">
