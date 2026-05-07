@@ -285,7 +285,9 @@ export default function Home() {
         })
 
         if (!response.ok) {
-          throw new Error("Narration unavailable")
+          const errorBody = await response.json().catch(() => null)
+          const status = errorBody?.status || response.status
+          throw new Error(`ElevenLabs rejected narration (${status})`)
         }
 
         const blob = await response.blob()
@@ -296,8 +298,8 @@ export default function Home() {
         await audio.play()
         showToast("Playing ElevenLabs voice brief")
         return
-      } catch {
-        showToast("ElevenLabs API key required for custom voice")
+      } catch (error) {
+        showToast(error instanceof Error ? error.message : "ElevenLabs API key required for custom voice")
         finishNarration()
       }
     },

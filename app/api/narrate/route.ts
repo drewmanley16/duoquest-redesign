@@ -38,7 +38,17 @@ export async function POST(request: Request) {
     })
 
     if (!response.ok) {
-      return NextResponse.json({ error: "ElevenLabs narration failed" }, { status: response.status })
+      const details = await response.text()
+      const clippedDetails = details.replace(/\s+/g, " ").slice(0, 220)
+
+      return NextResponse.json(
+        {
+          error: "ElevenLabs narration failed",
+          status: response.status,
+          details: clippedDetails,
+        },
+        { status: response.status },
+      )
     }
 
     const audio = await response.arrayBuffer()
