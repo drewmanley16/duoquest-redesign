@@ -74,7 +74,8 @@ a {
 .atlas-links,
 .hero-actions,
 .console-row,
-.ambient-row {
+.ambient-row,
+.nav-actions {
   display: flex;
   align-items: center;
 }
@@ -120,6 +121,20 @@ a {
 .nav-cta {
   padding: 0.62rem 0.9rem;
   background: #fdf8ed;
+}
+
+.nav-actions {
+  gap: 0.5rem;
+}
+
+.nav-cta.subtle {
+  display: grid;
+  width: 2.8rem;
+  aspect-ratio: 1;
+  place-items: center;
+  padding: 0;
+  font-size: 1.2rem;
+  font-weight: 900;
 }
 
 .nav-cta:hover,
@@ -222,6 +237,149 @@ h3 {
 
 .button.ghost {
   background: #fdf8ed;
+}
+
+.compare-section {
+  background: #18130f;
+  color: #f7f1e5;
+}
+
+.compare-section .kicker {
+  color: #d7f06b;
+}
+
+.compare-section .section-heading p {
+  color: rgba(247, 241, 229, 0.72);
+}
+
+.compare-frame {
+  --split: 50%;
+  position: relative;
+  min-height: 34rem;
+  overflow: hidden;
+  border: 1px solid #f7f1e5;
+  background: #f7f1e5;
+  color: #18130f;
+  box-shadow: 14px 14px 0 #315cbd;
+}
+
+.compare-side {
+  position: absolute;
+  inset: 0;
+  padding: clamp(1rem, 4vw, 2rem);
+}
+
+.compare-side.current {
+  background: #fbfbfb;
+}
+
+.compare-side.atlas {
+  left: var(--split);
+  width: calc(100% - var(--split));
+  overflow: hidden;
+  border-left: 3px solid #315cbd;
+  background:
+    linear-gradient(90deg, rgba(49, 92, 189, 0.13) 1px, transparent 1px),
+    linear-gradient(rgba(49, 92, 189, 0.13) 1px, transparent 1px),
+    #fffaf0;
+  background-size: 32px 32px;
+}
+
+.compare-side > span {
+  display: inline-block;
+  border: 1px solid #18130f;
+  background: #d7f06b;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.compare-side h3 {
+  margin-top: 1rem;
+  max-width: 24rem;
+}
+
+.current-ui {
+  max-width: 35rem;
+  margin-top: 2rem;
+  border: 1px solid rgba(24, 19, 15, 0.18);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.current-ui i {
+  display: block;
+  height: 1rem;
+  margin-bottom: 0.9rem;
+  border-radius: 5px;
+  background: rgba(24, 19, 15, 0.12);
+}
+
+.current-ui i:nth-child(1) {
+  width: 44%;
+  height: 2.4rem;
+}
+
+.current-ui i:nth-child(2) { width: 82%; }
+.current-ui i:nth-child(3) { width: 68%; }
+.current-ui i:nth-child(4) { width: 74%; }
+.current-ui i:nth-child(5) { width: 55%; }
+
+.atlas-ui-mini {
+  min-width: 28rem;
+  max-width: 35rem;
+  margin-top: 2rem;
+  border: 1px solid #18130f;
+  background: #18130f;
+  color: #f7f1e5;
+  padding: 1rem;
+  box-shadow: 7px 7px 0 #315cbd;
+}
+
+.atlas-ui-mini strong,
+.atlas-ui-mini em {
+  display: block;
+}
+
+.atlas-ui-mini p {
+  margin: 1rem 0;
+  color: #d7f06b;
+}
+
+.compare-frame input {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: ew-resize;
+}
+
+.compare-handle {
+  position: absolute;
+  left: var(--split);
+  top: 0;
+  z-index: 3;
+  width: 3px;
+  height: 100%;
+  background: #315cbd;
+}
+
+.compare-handle::after {
+  content: "drag";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  border: 1px solid #18130f;
+  background: #d7f06b;
+  padding: 0.4rem 0.55rem;
+  color: #18130f;
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
 }
 
 .briefing-trigger {
@@ -1345,6 +1503,156 @@ h3 {
   font-weight: 760;
 }
 
+.agent-card {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 35;
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  max-width: min(28rem, calc(100vw - 2rem));
+  border: 1px solid #18130f;
+  background: #fffaf0;
+  padding: 0.75rem;
+  box-shadow: 6px 6px 0 #315cbd;
+}
+
+.agent-card span,
+.live-feed span,
+.demo-panel-head span {
+  display: block;
+  color: #a43d2f;
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.agent-card strong {
+  display: block;
+  margin-top: 0.2rem;
+  line-height: 1.1;
+}
+
+.agent-card button,
+.demo-panel button,
+.command-palette button {
+  border: 1px solid #18130f;
+  background: #d7f06b;
+  padding: 0.55rem 0.65rem;
+  font-weight: 800;
+}
+
+.live-feed {
+  position: fixed;
+  left: 1rem;
+  top: 5rem;
+  z-index: 30;
+  border: 1px solid #18130f;
+  background: #d8e3ff;
+  padding: 0.55rem 0.7rem;
+  box-shadow: 4px 4px 0 #18130f;
+  animation: snapIn 260ms ease both;
+}
+
+.floating-command {
+  position: fixed;
+  right: 1rem;
+  bottom: 5rem;
+  z-index: 38;
+  display: grid;
+  width: 3.2rem;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid #18130f;
+  background: #18130f;
+  color: #f7f1e5;
+  box-shadow: 5px 5px 0 #315cbd;
+  font-size: 1.45rem;
+  font-weight: 900;
+}
+
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: start center;
+  background: rgba(24, 19, 15, 0.32);
+  padding-top: 12vh;
+}
+
+.command-palette {
+  width: min(42rem, calc(100vw - 2rem));
+  border: 1px solid #18130f;
+  background: #fdf8ed;
+  box-shadow: 14px 14px 0 #18130f;
+}
+
+.palette-input {
+  border-bottom: 1px solid #18130f;
+  padding: 1rem;
+  color: rgba(24, 19, 15, 0.55);
+  font-family: "Courier New", monospace;
+}
+
+.command-palette button {
+  display: grid;
+  width: 100%;
+  gap: 0.25rem;
+  border-width: 0 0 1px;
+  background: #fdf8ed;
+  padding: 1rem;
+  text-align: left;
+}
+
+.command-palette button:hover {
+  background: #d7f06b;
+}
+
+.command-palette button span {
+  color: rgba(24, 19, 15, 0.62);
+  font-weight: 500;
+}
+
+.demo-panel {
+  position: fixed;
+  right: 1rem;
+  top: 5rem;
+  z-index: 50;
+  width: min(22rem, calc(100vw - 2rem));
+  border: 1px solid #18130f;
+  background: #fffaf0;
+  box-shadow: 8px 8px 0 #18130f;
+  padding: 1rem;
+}
+
+.demo-panel-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  border-bottom: 1px solid rgba(24, 19, 15, 0.2);
+  padding-bottom: 0.8rem;
+}
+
+.demo-panel-head button {
+  background: #f7f1e5;
+  padding: 0.35rem 0.5rem;
+}
+
+.demo-panel ol {
+  margin: 1rem 0;
+  padding-left: 1.35rem;
+}
+
+.demo-panel li {
+  margin-bottom: 0.55rem;
+  font-weight: 740;
+}
+
 @media (max-width: 940px) {
   .atlas-nav {
     grid-template-columns: 1fr auto;
@@ -1429,6 +1737,11 @@ h3 {
   .integration-matrix,
   .demo-strip {
     grid-template-columns: 1fr;
+  }
+
+  .agent-card,
+  .live-feed {
+    display: none;
   }
 
   .db-row,

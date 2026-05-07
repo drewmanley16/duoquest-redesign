@@ -87,6 +87,16 @@ const realityRows = [
 ]
 
 const integrationSignals = ["Figma", "GitHub", "Slack", "Jira", "Amplitude", "Calendar", "Mail", "Forms"]
+const liveSignals = ["GitHub PR merged", "Slack thread linked", "AI summary updated", "3 new meeting notes"]
+const agentSuggestions = ["3 docs mention launch risk", "GitHub signal changed project status", "Create a briefing?"]
+
+const demoBeats = [
+  "Play brief",
+  "Switch Graph",
+  "Switch Automations",
+  "Narrate Reality Layer",
+  "Show Voice modes",
+]
 
 const atlasViews: Array<{ id: AtlasView; label: string; title: string; narration: string }> = [
   {
@@ -146,6 +156,11 @@ export default function Home() {
   const [typedSummary, setTypedSummary] = useState("")
   const [cursorTarget, setCursorTarget] = useState(0)
   const [activeAtlasView, setActiveAtlasView] = useState<AtlasView>("brief")
+  const [compareSplit, setCompareSplit] = useState(52)
+  const [paletteOpen, setPaletteOpen] = useState(false)
+  const [demoPanelOpen, setDemoPanelOpen] = useState(false)
+  const [agentIndex, setAgentIndex] = useState(0)
+  const [signalIndex, setSignalIndex] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const progressTimerRef = useRef<number | null>(null)
 
@@ -178,6 +193,35 @@ export default function Home() {
     }, 2600)
 
     return () => window.clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setAgentIndex((current) => (current + 1) % agentSuggestions.length)
+      setSignalIndex((current) => (current + 1) % liveSignals.length)
+    }, 3200)
+
+    return () => window.clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      const isTyping = target?.tagName === "INPUT" || target?.tagName === "TEXTAREA"
+
+      if (!isTyping && event.key === "/") {
+        event.preventDefault()
+        setPaletteOpen(true)
+      }
+
+      if (event.key === "Escape") {
+        setPaletteOpen(false)
+        setDemoPanelOpen(false)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
 
   const finishNarration = useCallback(() => {
@@ -277,6 +321,65 @@ export default function Home() {
     showToast(mode === "off" ? "Ambient layer off" : `${mode[0].toUpperCase()}${mode.slice(1)} ambience selected`)
   }
 
+  const goToSection = (id: string) => {
+    document.querySelector(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+  }
+
+  const runGuidedTour = () => {
+    const steps: Array<() => void> = [
+      () => goToSection("#top"),
+      () => startBriefing(),
+      () => {
+        goToSection("#atlas-lab")
+        setActiveAtlasView("graph")
+      },
+      () => {
+        setActiveAtlasView("automations")
+      },
+      () => {
+        goToSection("#reality")
+        speak(tourLines.data, "archivist")
+      },
+      () => {
+        goToSection("#voice")
+        setActiveAtlasView("voice")
+      },
+    ]
+
+    steps.forEach((step, index) => {
+      window.setTimeout(step, index * 1700)
+    })
+  }
+
+  const commandActions = [
+    {
+      command: "/brief workspace",
+      detail: "Trigger Briefing Mode",
+      run: () => startBriefing(),
+    },
+    {
+      command: "/show graph",
+      detail: "Open the knowledge graph tab",
+      run: () => {
+        goToSection("#atlas-lab")
+        setActiveAtlasView("graph")
+      },
+    },
+    {
+      command: "/read with editor voice",
+      detail: "Narrate the workspace with Editor mode",
+      run: () => {
+        setVoiceMode("editor")
+        speak(tourLines.workspace, "editor")
+      },
+    },
+    {
+      command: "/summarize launch room",
+      detail: "Read the real Notion data brief",
+      run: () => speak(tourLines.data, "operator"),
+    },
+  ]
+
   return (
     <main className={`atlas-shell ${briefingMode ? "briefing-mode" : ""}`}>
       <header className="atlas-nav">
@@ -290,9 +393,14 @@ export default function Home() {
           <a href="#voice">Voice</a>
           <a href="#demo">Demo</a>
         </nav>
-        <button className="nav-cta" type="button" onClick={startBriefing}>
-          Briefing Mode
-        </button>
+        <div className="nav-actions">
+          <button className="nav-cta subtle" type="button" onClick={() => setPaletteOpen(true)}>
+            /
+          </button>
+          <button className="nav-cta" type="button" onClick={startBriefing}>
+            Briefing Mode
+          </button>
+        </div>
       </header>
 
       <section className="atlas-hero" id="top">
@@ -309,6 +417,9 @@ export default function Home() {
             </a>
             <button className="button ghost briefing-trigger" type="button" onClick={startBriefing}>
               Play Voice Brief
+            </button>
+            <button className="button ghost" type="button" onClick={() => setDemoPanelOpen(true)}>
+              Demo Script
             </button>
           </div>
         </div>
@@ -429,6 +540,45 @@ export default function Home() {
             <small>{stat.source}</small>
           </article>
         ))}
+      </section>
+
+      <section className="section compare-section" id="compare">
+        <div className="section-heading">
+          <p className="kicker">Before / after</p>
+          <h2>The whole challenge in one draggable frame.</h2>
+          <p>Drag the divider to move from a familiar Notion-style workspace into the Notion Atlas redesign.</p>
+        </div>
+        <div className="compare-frame" style={{ "--split": `${compareSplit}%` } as React.CSSProperties}>
+          <div className="compare-side current">
+            <span>Current Notion</span>
+            <h3>Clean workspace</h3>
+            <div className="current-ui">
+              <i />
+              <i />
+              <i />
+              <i />
+              <i />
+            </div>
+          </div>
+          <div className="compare-side atlas">
+            <span>Notion Atlas</span>
+            <h3>Living desk</h3>
+            <div className="atlas-ui-mini">
+              <strong>Voice layer</strong>
+              <p>Briefing Mode active</p>
+              <em>AI summary generated</em>
+            </div>
+          </div>
+          <input
+            aria-label="Compare current Notion and Notion Atlas"
+            type="range"
+            min="15"
+            max="85"
+            value={compareSplit}
+            onChange={(event) => setCompareSplit(Number(event.target.value))}
+          />
+          <div className="compare-handle" />
+        </div>
       </section>
 
       <section className="section atlas-lab-section" id="atlas-lab">
@@ -727,7 +877,64 @@ export default function Home() {
         <button className="button primary" type="button" onClick={startBriefing}>
           Replay Briefing Mode
         </button>
+        <button className="button primary" type="button" onClick={runGuidedTour}>
+          Run Guided Tour
+        </button>
       </section>
+
+      <aside className="agent-card" aria-label="Atlas Agent suggestions">
+        <div>
+          <span>Atlas Agent</span>
+          <strong>{agentSuggestions[agentIndex]}</strong>
+        </div>
+        <button type="button" onClick={startBriefing}>Brief it</button>
+      </aside>
+
+      <div className="live-feed" aria-live="polite">
+        <span>{liveSignals[signalIndex]}</span>
+      </div>
+
+      <button className="floating-command" type="button" onClick={() => setPaletteOpen(true)}>
+        /
+      </button>
+
+      {paletteOpen ? (
+        <div className="palette-backdrop" onClick={() => setPaletteOpen(false)}>
+          <div className="command-palette" onClick={(event) => event.stopPropagation()}>
+            <div className="palette-input">/ command palette</div>
+            {commandActions.map((action) => (
+              <button
+                key={action.command}
+                type="button"
+                onClick={() => {
+                  action.run()
+                  setPaletteOpen(false)
+                }}
+              >
+                <strong>{action.command}</strong>
+                <span>{action.detail}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      {demoPanelOpen ? (
+        <aside className="demo-panel">
+          <div className="demo-panel-head">
+            <span>Demo Mode</span>
+            <button type="button" onClick={() => setDemoPanelOpen(false)}>Close</button>
+          </div>
+          <ol>
+            {demoBeats.map((beat) => (
+              <li key={beat}>{beat}</li>
+            ))}
+          </ol>
+          <button className="button primary" type="button" onClick={runGuidedTour}>
+            Auto-run tour
+          </button>
+        </aside>
+      ) : null}
 
       {toast ? <div className="atlas-toast">{toast}</div> : null}
     </main>
