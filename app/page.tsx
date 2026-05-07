@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 type AmbientMode = "off" | "library" | "rain" | "focus"
 type VoiceMode = "editor" | "archivist" | "operator"
 type AtlasView = "brief" | "database" | "graph" | "automations" | "integrations" | "voice"
+type LaunchPhase = "Draft" | "Review" | "Launch"
 
 const tourLines = {
   overview:
@@ -89,6 +90,7 @@ const realityRows = [
 const integrationSignals = ["Figma", "GitHub", "Slack", "Jira", "Amplitude", "Calendar", "Mail", "Forms"]
 const liveSignals = ["GitHub PR merged", "Slack thread linked", "AI summary updated", "3 new meeting notes"]
 const agentSuggestions = ["3 docs mention launch risk", "GitHub signal changed project status", "Create a briefing?"]
+const launchDate = new Date("2026-05-07T17:00:00-07:00")
 
 const demoBeats = [
   "Play brief",
@@ -96,6 +98,14 @@ const demoBeats = [
   "Switch Automations",
   "Narrate Reality Layer",
   "Show Voice modes",
+]
+
+const launchChecklist = ["Hook recorded", "Voice brief tested", "Reality layer shown", "Social post drafted"]
+const activityFeed = [
+  { time: "11:02", source: "GitHub", event: "PR merged into main" },
+  { time: "11:04", source: "Slack", event: "Launch thread linked" },
+  { time: "11:07", source: "AI", event: "Summary regenerated" },
+  { time: "11:11", source: "Calendar", event: "Submission window flagged" },
 ]
 
 const atlasViews: Array<{ id: AtlasView; label: string; title: string; narration: string }> = [
@@ -161,6 +171,9 @@ export default function Home() {
   const [demoPanelOpen, setDemoPanelOpen] = useState(false)
   const [agentIndex, setAgentIndex] = useState(0)
   const [signalIndex, setSignalIndex] = useState(0)
+  const [now, setNow] = useState(() => new Date())
+  const [launchPhase, setLaunchPhase] = useState<LaunchPhase>("Review")
+  const [checkedItems, setCheckedItems] = useState<boolean[]>([true, false, false, false])
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const progressTimerRef = useRef<number | null>(null)
 
@@ -192,6 +205,11 @@ export default function Home() {
       setCursorTarget((current) => (current + 1) % 3)
     }, 2600)
 
+    return () => window.clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 1000)
     return () => window.clearInterval(timer)
   }, [])
 
@@ -380,6 +398,18 @@ export default function Home() {
     },
   ]
 
+  const remainingMs = Math.max(0, launchDate.getTime() - now.getTime())
+  const remainingHours = Math.floor(remainingMs / 3_600_000)
+  const remainingMinutes = Math.floor((remainingMs % 3_600_000) / 60_000)
+  const remainingSeconds = Math.floor((remainingMs % 60_000) / 1000)
+  const completedCount = checkedItems.filter(Boolean).length
+
+  const cyclePhase = () => {
+    const phases: LaunchPhase[] = ["Draft", "Review", "Launch"]
+    setLaunchPhase((current) => phases[(phases.indexOf(current) + 1) % phases.length])
+    setBriefProgress((current) => Math.min(100, current + 7))
+  }
+
   return (
     <main className={`atlas-shell ${briefingMode ? "briefing-mode" : ""}`}>
       <header className="atlas-nav">
@@ -439,8 +469,12 @@ export default function Home() {
               <span />
               <strong>{["Maya", "Dev", "AI"][cursorTarget]}</strong>
             </div>
-            <div className="device-topbar">
+          <div className="device-topbar">
               <span>Atlas / Team Home</span>
+              <span className="clock-stamp">
+                {now.toLocaleDateString(undefined, { month: "short", day: "numeric" })} ·{" "}
+                {now.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}
+              </span>
               <div className="presence" aria-label="Collaborators online">
                 <span>M</span>
                 <span>D</span>
@@ -465,8 +499,14 @@ export default function Home() {
                   <div className="task-chips" aria-label="Launch room status chips">
                     <span>50+ blocks</span>
                     <span>6.6k templates</span>
-                    <span>AI brief ready</span>
+                    <button type="button" onClick={cyclePhase}>{launchPhase}</button>
                   </div>
+                </div>
+                <div className="launch-ribbon">
+                  <span>Submission closes May 7, 2026 · 5:00 PM PT</span>
+                  <strong>
+                    T-{remainingHours}h {remainingMinutes}m {remainingSeconds}s
+                  </strong>
                 </div>
                 <div className="brief-grid">
                   <article>
@@ -500,6 +540,33 @@ export default function Home() {
                 </div>
                 <div className="timeline" aria-label="Briefing progress">
                   <span style={{ width: `${briefProgress}%` }} />
+                </div>
+                <div className="operations-row">
+                  <div className="checklist-card">
+                    <span>Launch checklist</span>
+                    {launchChecklist.map((item, index) => (
+                      <button
+                        key={item}
+                        type="button"
+                        className={checkedItems[index] ? "checked" : ""}
+                        onClick={() => {
+                          setCheckedItems((items) => items.map((checked, itemIndex) => itemIndex === index ? !checked : checked))
+                          setBriefProgress((current) => Math.min(100, current + 6))
+                        }}
+                      >
+                        {item}
+                      </button>
+                    ))}
+                    <small>{completedCount}/{launchChecklist.length} complete</small>
+                  </div>
+                  <div className="activity-card">
+                    <span>Live activity</span>
+                    {activityFeed.map((activity, index) => (
+                      <p key={`${activity.time}-${activity.source}`} className={index === signalIndex ? "active" : ""}>
+                        <strong>{activity.time}</strong> {activity.source}: {activity.event}
+                      </p>
+                    ))}
+                  </div>
                 </div>
                 <div className="paper-stack">
                   {workspaceCards.map((card, index) => (

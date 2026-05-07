@@ -564,10 +564,17 @@ h3 {
   font-size: 0.85rem;
 }
 
+.clock-stamp {
+  margin-left: auto;
+  color: rgba(24, 19, 15, 0.62);
+  font-family: "Courier New", monospace;
+  font-size: 0.78rem;
+}
+
 .presence {
   display: flex;
   align-items: center;
-  margin-left: auto;
+  margin-left: 0;
   margin-right: 0.65rem;
 }
 
@@ -673,12 +680,42 @@ h3 {
   font-weight: 790;
 }
 
+.task-chips button {
+  border: 1px solid #18130f;
+  background: #d8e3ff;
+  padding: 0.36rem 0.48rem;
+  font-size: 0.7rem;
+  font-weight: 790;
+}
+
 .task-chips span:first-child {
   background: #fff06b;
 }
 
 .task-chips span:last-child {
   background: #d8e3ff;
+}
+
+.launch-ribbon {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.7rem;
+  align-items: center;
+  border: 1px solid #18130f;
+  background: #fff06b;
+  padding: 0.62rem 0.7rem;
+  box-shadow: 4px 4px 0 #18130f;
+}
+
+.launch-ribbon span {
+  color: rgba(24, 19, 15, 0.68);
+  font-size: 0.76rem;
+  font-weight: 780;
+}
+
+.launch-ribbon strong {
+  font-family: "Courier New", monospace;
+  font-size: 0.86rem;
 }
 
 .brief-grid {
@@ -785,6 +822,74 @@ h3 {
   height: 100%;
   background: #315cbd;
   transition: width 180ms ease;
+}
+
+.operations-row {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.9fr) minmax(12rem, 1.1fr);
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.checklist-card,
+.activity-card {
+  border: 1px solid #18130f;
+  background: #fffaf0;
+  padding: 0.75rem;
+}
+
+.checklist-card > span,
+.activity-card > span {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: #a43d2f;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.checklist-card button {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.35rem;
+  border: 1px solid rgba(24, 19, 15, 0.28);
+  background: #f7f1e5;
+  padding: 0.42rem 0.5rem;
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 740;
+}
+
+.checklist-card button.checked {
+  background: #d7f06b;
+  text-decoration: line-through;
+}
+
+.checklist-card small {
+  display: block;
+  margin-top: 0.35rem;
+  color: rgba(24, 19, 15, 0.56);
+  font-weight: 760;
+}
+
+.activity-card p {
+  margin: 0 0 0.35rem;
+  border-left: 3px solid rgba(49, 92, 189, 0.3);
+  padding-left: 0.5rem;
+  color: rgba(24, 19, 15, 0.66);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.activity-card p.active {
+  border-color: #315cbd;
+  color: #18130f;
+  background: #d8e3ff;
+}
+
+.activity-card strong {
+  font-family: "Courier New", monospace;
 }
 
 .paper-stack {
@@ -1681,6 +1786,11 @@ h3 {
   .task-chips {
     justify-content: flex-start;
     max-width: none;
+  }
+
+  .launch-ribbon,
+  .operations-row {
+    grid-template-columns: 1fr;
   }
 
   .notebook-preview {
